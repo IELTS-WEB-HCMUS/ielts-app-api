@@ -1,7 +1,7 @@
 package models
 
 import (
-	"hotel-booking-system/common"
+	"ielts-web-api/common"
 	"strings"
 )
 

@@ -1,7 +1,7 @@
 postgres:
-  host: dpg-cs7mgl5umphs73a97e8g-a.oregon-postgres.render.com
-  port: 5432
-  name: hotel_db_d3xy
-  user: hotel_db_d3xy_user
-  password: GCn9lfxAHYFpJnBa6SCOYxqzLpVY5rYH
+  host: 
+  port:
+  name: 
+  user: 
+  password: 
   

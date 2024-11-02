@@ -1,7 +1,8 @@
 package handlers
 
 import (
-	services "hotel-booking-system/internal/services"
+	services "ielts-web-api/internal/services"
+	"ielts-web-api/middleware"
 
 	"github.com/gin-gonic/gin"
 )
@@ -16,7 +17,13 @@ func NewHandler(service *services.Service) *Handler {
 	}
 }
 
-// Declare All the API Routes at here!!!
+// Define API route here
 func (h *Handler) RegisterRoutes(c *gin.Engine) {
-
+	userRoutes := c.Group("/api/users")
+	{
+		userRoutes.GET("", middleware.UserAuthentication, h.GetUserProfile)
+		// userRoutes.POST("/signup", h.SignUp)
+		// userRoutes.POST("/login", h.LogIn)
+		userRoutes.GET("/target", middleware.UserAuthentication, h.GetTarget)
+	}
 }
