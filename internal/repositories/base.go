@@ -2,8 +2,8 @@ package repositories
 
 import (
 	"context"
-	"hotel-booking-system/common"
-	"hotel-booking-system/internal/models"
+	"ielts-web-api/common"
+	"ielts-web-api/internal/models"
 
 	"gorm.io/gorm"
 	"gorm.io/gorm/clause"
