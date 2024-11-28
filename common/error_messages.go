@@ -14,6 +14,7 @@ var (
 	ErrInvalidInput             = errors.New("invalid input")
 	ErrInvalidGoogleAuthenToken = errors.New("invalid Google OAuth token")
 	ErrInvalidEmailOrPassWord   = errors.New("invalid email or password")
+	ErrTargetAlreadyExists      = errors.New("target already exists")
 )
 
 var listErrorData = []errData{
