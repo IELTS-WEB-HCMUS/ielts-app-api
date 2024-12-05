@@ -42,6 +42,7 @@ require (
 )
 
 require (
+	github.com/dlclark/regexp2 v1.11.4
 	github.com/gin-gonic/gin v1.10.0
 	github.com/golang-jwt/jwt/v5 v5.2.1
 	github.com/jinzhu/inflection v1.0.0 // indirect

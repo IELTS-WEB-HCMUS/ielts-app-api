@@ -13,11 +13,24 @@ import (
 	"github.com/golang-jwt/jwt/v5"
 	"golang.org/x/crypto/bcrypt"
 	"gorm.io/gorm"
+
+	"github.com/dlclark/regexp2"
 )
 
 var JWTSecret = []byte("your_secret_key")
 
 func (s *Service) SignupUser(ctx context.Context, req models.SignupRequest) error {
+	mailPattern := regexp2.MustCompile(`^((?!\.)[\w\-_.]*[^.])(@\w+)(\.\w+(\.\w+)?[^.\W])$`, regexp2.None)
+	isValidMail, _ := mailPattern.MatchString(req.Email)
+	if !isValidMail {
+		return common.ErrInvalidEmailFormat
+	}
+
+	passwordPattern := regexp2.MustCompile(`^(?=.*[0-9])(?=.*[a-z])(?=.*[A-Z])(?=.*\W)(?!.* ).{8,40}$`, regexp2.None)
+	isStrongPassword, _ := passwordPattern.MatchString(req.Password)
+	if !isStrongPassword {
+		return common.ErrWeakPassword
+	}
 
 	_, err := s.UserRepo.GetDetailByConditions(ctx, func(tx *gorm.DB) {
 		tx.Where("email = ?", req.Email)
