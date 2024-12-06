@@ -3,13 +3,19 @@ package common
 import (
 	"context"
 	"encoding/json"
+	"errors"
 	"fmt"
+	"log"
+	"math/rand"
+	"time"
 
 	"os"
 	"reflect"
 	"strconv"
 	"strings"
 
+	"github.com/sendgrid/sendgrid-go"
+	"github.com/sendgrid/sendgrid-go/helpers/mail"
 	"gorm.io/datatypes"
 )
 
@@ -140,4 +146,57 @@ func ContainsString(slice []string, item string) bool {
 		}
 	}
 	return false
+}
+
+func SendOTPEmail(fromEmail, toEmail, otp string) error {
+	apiKey := os.Getenv("MAIL_API_KEY")
+	from := mail.NewEmail("MePass", fromEmail)
+	to := mail.NewEmail("Recipient Name", toEmail)
+	subject := "Your OTP Code to reset password"
+	plainTextContent := fmt.Sprintf("Your OTP to reset password is: %s", otp)
+	htmlContent := fmt.Sprintf("<strong>Your OTP to reset password is: %s</strong>", otp)
+
+	message := mail.NewSingleEmail(from, subject, to, plainTextContent, htmlContent)
+
+	client := sendgrid.NewSendClient(apiKey)
+	response, err := client.Send(message)
+	if err != nil {
+		return err
+	}
+
+	log.Printf("Email sent! Status Code: %d, Body: %s, Headers: %v", response.StatusCode, response.Body, response.Headers)
+	return nil
+}
+
+func GenerateRandomOTP() string {
+	rand.Seed(time.Now().UnixNano())
+	return fmt.Sprintf("%06d", rand.Intn(1000000))
+}
+
+func NormalizeToBangkokTimezone(t time.Time) (time.Time, error) {
+	location, err := time.LoadLocation("Asia/Bangkok")
+	if err != nil {
+		return time.Time{}, errors.New("failed to load timezone")
+	}
+	return t.In(location), nil
+}
+
+const (
+	defaultLimit    = 20
+	defaultPage     = 1
+	defaultPageSize = 10
+	maxLimit        = 200
+)
+
+func GetPageAndPageSize(page, pageSize int) (int, int) {
+	if page == 0 {
+		page = defaultPage
+	}
+	if pageSize == 0 {
+		pageSize = defaultPageSize
+	}
+	if pageSize > maxLimit {
+		pageSize = maxLimit
+	}
+	return page, pageSize
 }

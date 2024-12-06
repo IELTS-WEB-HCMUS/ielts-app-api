@@ -2,12 +2,12 @@ package common
 
 // Define New Table Name here
 const (
-	POSTGRES_TABLE_NAME_USERS   = "public.users"
-	POSTGRES_TABLE_NAME_ROLES   = "public.roles"
-	POSTGRES_TABLE_NAME_TARGETS = "public.student_target"
+	POSTGRES_TABLE_NAME_USERS        = "public.users"
+	POSTGRES_TABLE_NAME_ROLES        = "public.roles"
+	POSTGRES_TABLE_NAME_TARGETS      = "public.student_target"
+	POSTGRES_TABLE_NAME_OTPS         = "public.otps"
+	POSTGRES_TABLE_NAME_OTP_ATTEMPTS = "public.otp_attempts"
 )
-
-// Define New Const variable here for each service
 
 const (
 	ROLE_END_USER        = "end_user"
@@ -15,4 +15,7 @@ const (
 	USER_PROVIDER_GOOGLE = "google"
 )
 
-// Define other common variable here
+const (
+	FromEmail         = "mainhatnam01@gmail.com"
+	TypeResetPassword = "reset_password"
+)
