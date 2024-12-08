@@ -23,6 +23,8 @@ var (
 	ErrOTPAlreadyVerified            = errors.New("OTP already verified")
 	ErrFailedToUpdateOTPStatus       = errors.New("failed to update OTP status")
 	ErrEmailNotFound                 = errors.New("email not found")
+	ErrOtpVerityTokenCreateFailed    = errors.New("failed to create OTP verify token")
+	ErrInvalidVerifyToken			 = errors.New("invalid verify token")
 )
 
 var listErrorData = []errData{

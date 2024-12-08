@@ -30,7 +30,7 @@ func (h *Handler) RegisterRoutes(c *gin.Engine) {
 	}
 	authRoutes := c.Group("/api/auth")
 	{
-		authRoutes.POST("/gen-otp", h.RequestResetPassword)
+		authRoutes.POST("/gen-otp", h.GenerateOTP)
 		authRoutes.POST("/validate-otp", h.ValidateOTP)
 		authRoutes.POST("/reset-password", h.ResetPassword)
 	}
