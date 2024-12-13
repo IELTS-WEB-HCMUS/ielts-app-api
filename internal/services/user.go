@@ -6,7 +6,7 @@ import (
 )
 
 func (s *Service) GetUserProfileById(ctx context.Context, id string) (*models.User, error) {
-	user, err := s.UserRepo.GetByID(ctx, id)
+	user, err := s.userRepo.GetByID(ctx, id)
 	if err != nil {
 		return nil, err
 	}

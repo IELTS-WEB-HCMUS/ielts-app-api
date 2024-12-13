@@ -13,7 +13,7 @@ import (
 
 func (s *Service) GetTargetById(ctx context.Context, id string) (*models.Target, error) {
 	fmt.Println(id)
-	target, err := s.TargetRepo.GetByID(ctx, id)
+	target, err := s.targetRepo.GetByID(ctx, id)
 	if err != nil {
 		return nil, err
 	}
@@ -22,7 +22,7 @@ func (s *Service) GetTargetById(ctx context.Context, id string) (*models.Target,
 
 func (s *Service) CreateTarget(ctx context.Context, userId string, req models.TargetRequest) (*models.Target, error) {
 	// Check if a target for the user already exists
-	_, err := s.TargetRepo.GetByID(ctx, userId)
+	_, err := s.targetRepo.GetByID(ctx, userId)
 	if err != nil {
 		if !errors.Is(err, gorm.ErrRecordNotFound) {
 			return nil, err
@@ -57,7 +57,7 @@ func (s *Service) CreateTarget(ctx context.Context, userId string, req models.Ta
 	}
 
 	// Create the new target record
-	createdTarget, err := s.TargetRepo.Create(ctx, &newTarget)
+	createdTarget, err := s.targetRepo.Create(ctx, &newTarget)
 	if err != nil {
 		return nil, err
 	}
@@ -79,7 +79,7 @@ func getOrDefaultFloat32(val *float32, defaultVal float32) float32 {
 }
 
 func (s *Service) UpdateTarget(ctx context.Context, userId string, req models.TargetRequest) (*models.Target, error) {
-	updateTarget, err := s.TargetRepo.GetByID(ctx, userId)
+	updateTarget, err := s.targetRepo.GetByID(ctx, userId)
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return nil, err
@@ -110,7 +110,7 @@ func (s *Service) UpdateTarget(ctx context.Context, userId string, req models.Ta
 		}
 		updateTarget.NextExamDate = parsedNextExamDate
 	}
-	updatedTarget, err := s.TargetRepo.Update(ctx, userId, updateTarget)
+	updatedTarget, err := s.targetRepo.Update(ctx, userId, updateTarget)
 	if err != nil {
 		return nil, err
 	}
