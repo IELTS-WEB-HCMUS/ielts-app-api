@@ -34,4 +34,9 @@ func (h *Handler) RegisterRoutes(c *gin.Engine) {
 		authRoutes.POST("/validate-otp", h.ValidateOTP)
 		authRoutes.POST("/reset-password", h.ResetPassword)
 	}
+
+	health := c.Group("api/health")
+	{
+		health.GET("/status", h.CheckStatusHealth)
+	}
 }

@@ -206,7 +206,7 @@ func (s *Service) GenerateOTP(ctx context.Context, email string) (string, error)
 
 	newOTP := models.OTP{
 		Target:     email,
-		Type:       common.TypeResetPassword,
+		Type:       common.TypeResetPassword, // common.TypeVerifyEmail if req.Type = "verify_email" ==> Type: common.TypeVerifyEmail else Type: common.TypeResetPassword
 		OTPCode:    otp,
 		ExpiredAt:  expiry,
 		IsVerified: false,
