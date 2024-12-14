@@ -219,7 +219,7 @@ func (s *Service) GenerateOTP(ctx context.Context, email string, typeToSend stri
 
 	newOTP := models.OTP{
 		Target:     email,
-		Type:       common.TypeResetPassword, // common.TypeVerifyEmail if req.Type = "verify_email" ==> Type: common.TypeVerifyEmail else Type: common.TypeResetPassword
+		Type:       common.RESET_PASSSWORD_TYPE, // common.TypeVerifyEmail if req.Type = "verify_email" ==> Type: common.TypeVerifyEmail else Type: common.TypeResetPassword
 		OTPCode:    otp,
 		ExpiredAt:  expiry,
 		IsVerified: false,
