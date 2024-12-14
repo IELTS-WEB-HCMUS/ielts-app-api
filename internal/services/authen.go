@@ -20,6 +20,19 @@ import (
 var JWTSecret = []byte("your_secret_key")
 
 func (s *Service) SignupUser(ctx context.Context, req models.SignupRequest) error {
+	storedOTP, err := s.otpRepo.GetDetailByConditions(ctx, func(tx *gorm.DB) {
+		tx.Where("target = ? AND type = ?", req.Email, common.VERIFY_EMAIL_TYPE)
+		tx.Order("created_at desc")
+	})
+
+	if err != nil {
+		return err
+	}
+
+	if storedOTP.VerifyToken != req.VerifyToken || !storedOTP.IsVerified {
+		return common.ErrInvalidVerifyToken
+	}
+
 	mailPattern := regexp2.MustCompile(`^((?!\.)[\w\-_.]*[^.])(@\w+)(\.\w+(\.\w+)?[^.\W])$`, regexp2.None)
 	isValidMail, _ := mailPattern.MatchString(req.Email)
 	if !isValidMail {
@@ -32,7 +45,7 @@ func (s *Service) SignupUser(ctx context.Context, req models.SignupRequest) erro
 		return common.ErrWeakPassword
 	}
 
-	_, err := s.userRepo.GetDetailByConditions(ctx, func(tx *gorm.DB) {
+	_, err = s.userRepo.GetDetailByConditions(ctx, func(tx *gorm.DB) {
 		tx.Where("email = ?", req.Email)
 	})
 
@@ -185,13 +198,13 @@ func verifyGoogleOAuthToken(idToken string) (*models.GoogleUser, error) {
 	return &googleUser, nil
 }
 
-func (s *Service) GenerateOTP(ctx context.Context, email string) (string, error) {
+func (s *Service) GenerateOTP(ctx context.Context, email string, typeToSend string) (string, error) {
 	otp := common.GenerateRandomOTP()
 
 	expiry := time.Now().UTC().Add(1 * time.Minute)
 
 	existingOTP, err := s.otpRepo.GetDetailByConditions(ctx, func(tx *gorm.DB) {
-		tx.Where("target = ? AND type = ?", email, common.TypeResetPassword)
+		tx.Where("target = ? AND type = ?", email, typeToSend)
 	})
 
 	if err == nil {
@@ -220,25 +233,25 @@ func (s *Service) GenerateOTP(ctx context.Context, email string) (string, error)
 	return otp, nil
 }
 
-func (s *Service) ValidateOTP(ctx context.Context, email, otp string) error {
+func (s *Service) ValidateOTP(ctx context.Context, email, otp string, typeToValidate string) (string, error) {
 	storedOTP, err := s.otpRepo.GetDetailByConditions(ctx, func(tx *gorm.DB) {
-		tx.Where("target = ? AND type = ?", email, common.TypeResetPassword)
+		tx.Where("target = ? AND type = ?", email, typeToValidate)
 		tx.Order("created_at desc")
 	})
 	if err != nil {
-		return err
+		return "", err
 	}
 	if storedOTP.IsVerified {
-		return common.ErrOTPAlreadyVerified
+		return "", common.ErrOTPAlreadyVerified
 	}
 
 	expiryTime, err := common.NormalizeToBangkokTimezone(storedOTP.ExpiredAt)
 	if err != nil {
-		return err
+		return "", err
 	}
 	currentTime, err := common.NormalizeToBangkokTimezone(time.Now())
 	if err != nil {
-		return err
+		return "", err
 	}
 
 	newAttempt := models.OTPAttempt{
@@ -251,30 +264,36 @@ func (s *Service) ValidateOTP(ctx context.Context, email, otp string) error {
 	if expiryTime.Before(currentTime) {
 		newAttempt.IsSuccess = false
 		_, _ = s.otpAttemptRepo.Create(ctx, &newAttempt)
-		return common.ErrOTPExpired
+		return "", common.ErrOTPExpired
 	}
 
 	if storedOTP.OTPCode != otp {
 		newAttempt.IsSuccess = false
 		_, _ = s.otpAttemptRepo.Create(ctx, &newAttempt)
-		return common.ErrInvalidOTP
+		return "", common.ErrInvalidOTP
 	}
 
 	storedOTP.IsVerified = true
+	verifyToken, err := common.GenerateBase64Token(32)
+	storedOTP.VerifyToken = verifyToken
+	if err != nil {
+		return "", common.ErrOtpVerityTokenCreateFailed
+	}
+
 	_, err = s.otpRepo.Update(ctx, storedOTP.ID, storedOTP)
 	if err != nil {
-		return common.ErrFailedToUpdateOTPStatus
+		return "", common.ErrFailedToUpdateOTPStatus
 	}
 
 	newAttempt.IsSuccess = true
 	_, _ = s.otpAttemptRepo.Create(ctx, &newAttempt)
 
-	return nil
+	return verifyToken, nil
 }
 
-func (s *Service) ResetPassword(ctx context.Context, email, newPassword string) error {
+func (s *Service) ResetPassword(ctx context.Context, req models.ResetPasswordRequest) error {
 	_, err := s.userRepo.GetDetailByConditions(ctx, func(tx *gorm.DB) {
-		tx.Where("email = ?", email)
+		tx.Where("email = ?", req.Email)
 	})
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
@@ -283,7 +302,26 @@ func (s *Service) ResetPassword(ctx context.Context, email, newPassword string) 
 		return err
 	}
 
-	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(newPassword), bcrypt.DefaultCost)
+	storedOTP, err := s.otpRepo.GetDetailByConditions(ctx, func(tx *gorm.DB) {
+		tx.Where("target = ? AND type = ?", req.Email, common.RESET_PASSSWORD_TYPE)
+		tx.Order("created_at desc")
+	})
+
+	if err != nil {
+		return err
+	}
+
+	if storedOTP.VerifyToken != req.VerifyToken || !storedOTP.IsVerified {
+		return common.ErrInvalidVerifyToken
+	}
+
+	passwordPattern := regexp2.MustCompile(`^(?=.*[0-9])(?=.*[a-z])(?=.*[A-Z])(?=.*\W)(?!.* ).{8,40}$`, regexp2.None)
+	isStrongPassword, _ := passwordPattern.MatchString(req.NewPassword)
+	if !isStrongPassword {
+		return common.ErrWeakPassword
+	}
+
+	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(req.NewPassword), bcrypt.DefaultCost)
 	if err != nil {
 		return err
 	}
@@ -293,6 +331,6 @@ func (s *Service) ResetPassword(ctx context.Context, email, newPassword string) 
 	}
 
 	return s.userRepo.UpdatesByConditions(ctx, &updatedUser, func(tx *gorm.DB) {
-		tx.Where("email = ?", email)
+		tx.Where("email = ?", req.Email)
 	})
 }

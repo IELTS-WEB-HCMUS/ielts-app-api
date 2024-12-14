@@ -6,11 +6,12 @@ import (
 )
 
 type SignupRequest struct {
-	Email     string `json:"email" binding:"required"`
-	FirstName string `json:"first_name" binding:"required"`
-	LastName  string `json:"last_name" binding:"required"`
-	Password  string `json:"password" binding:"required"`
-	Role      string `json:"role" binding:"required"`
+	Email       string `json:"email" binding:"required"`
+	FirstName   string `json:"first_name" binding:"required"`
+	LastName    string `json:"last_name" binding:"required"`
+	Password    string `json:"password" binding:"required"`
+	Role        string `json:"role" binding:"required"`
+	VerifyToken string `json:"verify_token" binding:"required"`
 }
 
 type LoginRequest struct {
@@ -20,14 +21,15 @@ type LoginRequest struct {
 }
 
 type OTP struct {
-	ID         uint      `gorm:"primaryKey" json:"id"`
-	Target     string    `gorm:"size:255;not null" json:"target"`
-	Type       string    `gorm:"size:50;not null" json:"type"`
-	OTPCode    string    `gorm:"size:6;not null" json:"otp_code"`
-	ExpiredAt  time.Time `gorm:"not null" json:"expired_at"`
-	IsVerified bool      `gorm:"default:false" json:"is_verified"`
-	CreatedAt  time.Time `gorm:"autoCreateTime" json:"created_at"`
-	UpdatedAt  time.Time `gorm:"autoUpdateTime" json:"updated_at"`
+	ID          uint      `gorm:"primaryKey" json:"id"`
+	Target      string    `gorm:"size:255;not null" json:"target"`
+	Type        string    `gorm:"size:50;not null" json:"type"`
+	OTPCode     string    `gorm:"size:6;not null" json:"otp_code"`
+	ExpiredAt   time.Time `gorm:"not null" json:"expired_at"`
+	IsVerified  bool      `gorm:"default:false" json:"is_verified"`
+	CreatedAt   time.Time `gorm:"autoCreateTime" json:"created_at"`
+	UpdatedAt   time.Time `gorm:"autoUpdateTime" json:"updated_at"`
+	VerifyToken string    `gorm:"type:text" json:"verify_token"`
 }
 
 func (OTP) TableName() string {
@@ -37,6 +39,7 @@ func (OTP) TableName() string {
 type ResetPasswordRequest struct {
 	Email       string `json:"email" binding:"required,email"`
 	NewPassword string `json:"new_password" binding:"required"`
+	VerifyToken string `json:"verify_token" binding:"required"`
 }
 
 type OTPAttempt struct {
@@ -54,4 +57,10 @@ func (OTPAttempt) TableName() string {
 type OTPValidateRequest struct {
 	Email string `json:"email" binding:"required,email"`
 	OTP   string `json:"otp" binding:"required"`
+	Type  string `json:"type" binding:"required,oneof=reset_password verify_email"`
+}
+
+type SendOTPRequest struct {
+	Type  string `json:"type" binding:"required,oneof=reset_password verify_email"`
+	Email string `json:"email" binding:"required,email"`
 }

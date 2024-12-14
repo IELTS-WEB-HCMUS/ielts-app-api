@@ -16,6 +16,10 @@ const (
 )
 
 const (
-	FromEmail         = "mainhatnam01@gmail.com"
-	TypeResetPassword = "reset_password"
+	FromEmail = "mainhatnam01@gmail.com"
+)
+
+const (
+	RESET_PASSSWORD_TYPE = "reset_password"
+	VERIFY_EMAIL_TYPE    = "verify_email"
 )

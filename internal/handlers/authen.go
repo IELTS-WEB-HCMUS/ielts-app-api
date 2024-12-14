@@ -45,23 +45,21 @@ func (h *Handler) LogIn(c *gin.Context) {
 	c.JSON(common.SUCCESS_STATUS, common.BaseResponseMess(common.SUCCESS_STATUS, "Login successfully", token))
 }
 
-func (h *Handler) RequestResetPassword(c *gin.Context) {
-	var req struct {
-		Email string `json:"email" binding:"required,email"`
-	}
+func (h *Handler) GenerateOTP(c *gin.Context) {
+	var req models.SendOTPRequest
 
 	if err := c.ShouldBindJSON(&req); err != nil {
 		common.AbortWithError(c, err)
 		return
 	}
 
-	otp, err := h.service.GenerateOTP(c.Request.Context(), req.Email)
+	otp, err := h.service.GenerateOTP(c.Request.Context(), req.Email, req.Type)
 	if err != nil {
 		common.AbortWithError(c, err)
 		return
 	}
 
-	err = common.SendOTPEmail(common.FromEmail, req.Email, otp)
+	err = common.SendOTPEmail(common.FromEmail, req.Email, otp, req.Type)
 	if err != nil {
 		common.AbortWithError(c, err)
 		return
@@ -78,13 +76,13 @@ func (h *Handler) ValidateOTP(c *gin.Context) {
 		return
 	}
 
-	err := h.service.ValidateOTP(c.Request.Context(), req.Email, req.OTP)
+	verify_token, err := h.service.ValidateOTP(c.Request.Context(), req.Email, req.OTP, req.Type)
 	if err != nil {
 		common.AbortWithError(c, err)
 		return
 	}
 
-	c.JSON(common.SUCCESS_STATUS, common.BaseResponse(http.StatusOK, "OTP validated successfully", "", ""))
+	c.JSON(common.SUCCESS_STATUS, common.BaseResponse(http.StatusOK, "OTP validated successfully", "", verify_token))
 }
 
 func (h *Handler) ResetPassword(c *gin.Context) {
@@ -93,7 +91,7 @@ func (h *Handler) ResetPassword(c *gin.Context) {
 		common.AbortWithError(c, err)
 		return
 	}
-	err := h.service.ResetPassword(c.Request.Context(), req.Email, req.NewPassword)
+	err := h.service.ResetPassword(c.Request.Context(), req)
 	if err != nil {
 		common.AbortWithError(c, err)
 		return
