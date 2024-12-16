@@ -3,14 +3,24 @@ package common
 import (
 	"context"
 	"encoding/json"
+	"errors"
 	"fmt"
+
+	"log"
+	"math/rand"
+	"time"
 
 	"os"
 	"reflect"
 	"strconv"
 	"strings"
 
+	"github.com/sendgrid/sendgrid-go"
+	"github.com/sendgrid/sendgrid-go/helpers/mail"
 	"gorm.io/datatypes"
+
+	crand "crypto/rand"
+	"encoding/base64"
 )
 
 const (
@@ -140,4 +150,81 @@ func ContainsString(slice []string, item string) bool {
 		}
 	}
 	return false
+}
+
+func SendOTPEmail(fromEmail, toEmail, otp, typeToSend string) error {
+	apiKey := os.Getenv("MAIL_API_KEY")
+	from := mail.NewEmail("MePass", fromEmail)
+	to := mail.NewEmail("User", toEmail)
+
+	// Customize subject and content based on the typeToSend
+	var subject, plainTextContent, htmlContent string
+	switch typeToSend {
+	case RESET_PASSSWORD_TYPE:
+		subject = "Reset Your Password - OTP"
+		plainTextContent = fmt.Sprintf("Your OTP to reset your password is: %s", otp)
+	case VERIFY_EMAIL_TYPE:
+		subject = "Verify Your Account - OTP"
+		plainTextContent = fmt.Sprintf("Your OTP to verify your account is: %s", otp)
+	default:
+		return fmt.Errorf("invalid typeToSend value: %s", typeToSend)
+	}
+
+	htmlContent = getEmailContentFormat(otp)
+
+	// Create the email message
+	message := mail.NewSingleEmail(from, subject, to, plainTextContent, htmlContent)
+
+	// Send the email using SendGrid
+	client := sendgrid.NewSendClient(apiKey)
+	response, err := client.Send(message)
+	if err != nil {
+		return err
+	}
+
+	// Log response for debugging
+	log.Printf("Email sent! Status Code: %d, Body: %s, Headers: %v", response.StatusCode, response.Body, response.Headers)
+	return nil
+}
+
+func GenerateRandomOTP() string {
+	rand.Seed(time.Now().UnixNano())
+	return fmt.Sprintf("%06d", rand.Intn(1000000))
+}
+
+func NormalizeToBangkokTimezone(t time.Time) (time.Time, error) {
+	location, err := time.LoadLocation("Asia/Bangkok")
+	if err != nil {
+		return time.Time{}, errors.New("failed to load timezone")
+	}
+	return t.In(location), nil
+}
+
+const (
+	defaultLimit    = 20
+	defaultPage     = 1
+	defaultPageSize = 10
+	maxLimit        = 200
+)
+
+func GetPageAndPageSize(page, pageSize int) (int, int) {
+	if page == 0 {
+		page = defaultPage
+	}
+	if pageSize == 0 {
+		pageSize = defaultPageSize
+	}
+	if pageSize > maxLimit {
+		pageSize = maxLimit
+	}
+	return page, pageSize
+}
+
+func GenerateBase64Token(length int) (string, error) {
+	bytes := make([]byte, length)
+	_, err := crand.Read(bytes)
+	if err != nil {
+		return "", err
+	}
+	return base64.URLEncoding.EncodeToString(bytes), nil
 }

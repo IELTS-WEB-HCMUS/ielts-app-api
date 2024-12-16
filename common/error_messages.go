@@ -9,11 +9,22 @@ import (
 )
 
 var (
-	ErrUserNotFound             = errors.New("user not found")
-	ErrInvalidToken             = errors.New("invalid token")
-	ErrInvalidInput             = errors.New("invalid input")
-	ErrInvalidGoogleAuthenToken = errors.New("invalid Google OAuth token")
-	ErrInvalidEmailOrPassWord   = errors.New("invalid email or password")
+	ErrUserNotFound                  = errors.New("user not found")
+	ErrInvalidToken                  = errors.New("invalid token")
+	ErrInvalidInput                  = errors.New("invalid input")
+	ErrInvalidGoogleAuthenToken      = errors.New("invalid Google OAuth token")
+	ErrInvalidEmailOrPassWord        = errors.New("invalid email or password")
+	ErrTargetAlreadyExists           = errors.New("target already exists")
+	ErrInvalidEmailFormat            = errors.New("invalid email format")
+	ErrWeakPassword                  = errors.New("password is not strong enough")
+	ErrFailedToInValidateExistingOTP = errors.New("failed to invalidate existing OTP")
+	ErrInvalidOTP                    = errors.New("invalid OTP")
+	ErrOTPExpired                    = errors.New("OTP expired")
+	ErrOTPAlreadyVerified            = errors.New("OTP already verified")
+	ErrFailedToUpdateOTPStatus       = errors.New("failed to update OTP status")
+	ErrEmailNotFound                 = errors.New("email not found")
+	ErrOtpVerityTokenCreateFailed    = errors.New("failed to create OTP verify token")
+	ErrInvalidVerifyToken			 = errors.New("invalid verify token")
 )
 
 var listErrorData = []errData{
