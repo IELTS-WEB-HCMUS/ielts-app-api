@@ -24,7 +24,12 @@ var (
 	ErrFailedToUpdateOTPStatus       = errors.New("failed to update OTP status")
 	ErrEmailNotFound                 = errors.New("email not found")
 	ErrOtpVerityTokenCreateFailed    = errors.New("failed to create OTP verify token")
-	ErrInvalidVerifyToken			 = errors.New("invalid verify token")
+	ErrInvalidVerifyToken            = errors.New("invalid verify token")
+
+	ErrNotAuthorized               = errors.New("not authorized")
+	ErrRecordNotFound              = errors.New("record not found")
+	ErrQuizNotFound                = errors.New("quiz not found")
+	ErrAnswerStatisticTypeRequired = errors.New("answer_statistic_type_required")
 )
 
 var listErrorData = []errData{
