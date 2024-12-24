@@ -67,5 +67,6 @@ func (h *Handler) RegisterRoutes(c *gin.Engine) {
 	{
 		vocabRoutes.GET("/get-categories", middleware.UserAuthentication, h.GetVocabCategorires)
 		vocabRoutes.POST("/update-category", middleware.UserAuthentication, h.UpdateVocabCategory)
+		vocabRoutes.POST("/add", middleware.UserAuthentication, h.AddVocab)
 	}
 }

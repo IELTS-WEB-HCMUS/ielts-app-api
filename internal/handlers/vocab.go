@@ -38,3 +38,19 @@ func (h *Handler) UpdateVocabCategory(c *gin.Context) {
 
 	c.JSON(http.StatusOK, common.ResponseOk(message))
 }
+
+func (h *Handler) AddVocab(c *gin.Context) {
+	var req models.UserVocabBankAddRequest
+	if err := c.ShouldBindJSON(&req); err != nil {
+		common.AbortWithError(c, common.ErrInvalidInput)
+		return
+	}
+
+	message, err := h.service.AddVocab(c, req)
+	if err != nil {
+		common.AbortWithError(c, err)
+		return
+	}
+
+	c.JSON(http.StatusOK, common.ResponseOk(message))
+}

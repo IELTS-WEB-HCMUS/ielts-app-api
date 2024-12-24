@@ -17,3 +17,15 @@ func NewUserVocabCategoryRepository(db *gorm.DB) *UserVocabCategoryRepository {
 		BaseRepository: NewBaseRepository[models.UserVocabCategory](db),
 	}
 }
+
+type UserVocabBankRepository struct {
+	db *gorm.DB
+	BaseRepository[models.UserVocabBank]
+}
+
+func NewUserVocabBankRepository(db *gorm.DB) *UserVocabBankRepository {
+	return &UserVocabBankRepository{
+		db:             db,
+		BaseRepository: NewBaseRepository[models.UserVocabBank](db),
+	}
+}

@@ -17,3 +17,29 @@ type UpdateVocabCategoryRequest struct {
 	Id   int    `json:"id" binding:"required"`
 	Name string `json:"new_name" binding:"required"`
 }
+
+type UserVocabBank struct {
+	ID        int     `json:"id" gorm:"column:id;primaryKey;autoIncrement"`
+	Value     string  `json:"value" gorm:"column:value;not null"`
+	WordClass string  `json:"word_class" gorm:"column:word_class;not null"`
+	Meaning   string  `json:"meaning" gorm:"column:meaning;not null"`
+	IPA       string  `json:"ipa" gorm:"column:ipa;not null"`
+	Example   *string `json:"example" gorm:"column:example;default:null"`
+	Note      *string `json:"note" gorm:"column:note;default:null"`
+	Status    string  `json:"status" gorm:"column:status;default:Chưa học"`
+	Category  int     `json:"-" gorm:"column:category;not null"`
+}
+
+func (UserVocabBank) TableName() string {
+	return common.POSTGRES_TABLE_NAME_USER_VOCAB_BANK
+}
+
+type UserVocabBankAddRequest struct {
+	Value     string  `json:"value" binding:"required"`
+	WordClass string  `json:"word_class" binding:"required"`
+	Meaning   string  `json:"meaning" binding:"required"`
+	IPA       string  `json:"ipa" binding:"required"`
+	Example   *string `json:"example"`
+	Note      *string `json:"note"`
+	Category  int     `json:"category" binding:"required"`
+}

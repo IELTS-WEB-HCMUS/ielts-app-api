@@ -18,6 +18,7 @@ const (
 	POSTGRES_TABLE_NAME_SUCCESS_QUIZ_LOG    = "public.success_quiz_log"
 	POSTGRES_TABLE_NAME_QUIZ_TAG_SEARCH     = "public.quiz_tag_search"
 	POSTGRES_TABLE_NAME_USER_VOCAB_CATEGORY = "public.user_vocab_category"
+	POSTGRES_TABLE_NAME_USER_VOCAB_BANK     = "public.user_vocab_bank"
 )
 
 const (

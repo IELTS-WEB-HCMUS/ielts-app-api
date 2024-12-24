@@ -41,7 +41,15 @@ func main() {
 	otpRepo := repositories.NewOTPRepository(db)
 	otpAttemptRepo := repositories.NewOTPAttemptRepository(db)
 	vocabCategoriesRepo := repositories.NewUserVocabCategoryRepository(db)
-	service := services.NewService(userRepo, targetRepo, otpRepo, otpAttemptRepo, vocabCategoriesRepo)
+	userVocabBankRepo := repositories.NewUserVocabBankRepository(db)
+	service := services.NewService(
+		userRepo,
+		targetRepo,
+		otpRepo,
+		otpAttemptRepo,
+		vocabCategoriesRepo,
+		userVocabBankRepo,
+	)
 
 	// Initialize the Gin router and register routes. Do not edit this part
 	router := gin.Default()

@@ -44,3 +44,23 @@ func (s *Service) UpdateVocabCategory(ctx context.Context, req models.UpdateVoca
 	successMessage := "Category updated successfully"
 	return &successMessage, nil
 }
+
+func (s *Service) AddVocab(ctx context.Context, req models.UserVocabBankAddRequest) (*string, error) {
+	newVocab := models.UserVocabBank{
+		Value:     req.Value,
+		WordClass: req.WordClass,
+		Meaning:   req.Meaning,
+		IPA:       req.IPA,
+		Example:   req.Example,
+		Note:      req.Note,
+		Category:  req.Category,
+	}
+
+	_, err := s.userVocabBankRepo.Create(ctx, &newVocab)
+	if err != nil {
+		return nil, err
+	}
+
+	successMessage := "Add vocab successfully"
+	return &successMessage, nil
+}
