@@ -28,3 +28,19 @@ func (s *Service) GetVocabCategoriresByUserId(ctx context.Context, userId string
 
 	return categories, nil
 }
+
+func (s *Service) UpdateVocabCategory(ctx context.Context, req models.UpdateVocabCategoryRequest) (*string, error) {
+	category, err := s.vocabCategoriesRepo.GetByID(ctx, req.Id)
+	if err != nil {
+		return nil, err
+	}
+
+	category.Name = req.Name
+	_, err = s.vocabCategoriesRepo.Update(ctx, category.ID, category)
+
+	if err != nil {
+		return nil, err
+	}
+	successMessage := "Category updated successfully"
+	return &successMessage, nil
+}

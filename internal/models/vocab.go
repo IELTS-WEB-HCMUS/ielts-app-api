@@ -12,3 +12,8 @@ type UserVocabCategory struct {
 func (UserVocabCategory) TableName() string {
 	return common.POSTGRES_TABLE_NAME_USER_VOCAB_CATEGORY
 }
+
+type UpdateVocabCategoryRequest struct {
+	Id   int    `json:"id" binding:"required"`
+	Name string `json:"new_name" binding:"required"`
+}
