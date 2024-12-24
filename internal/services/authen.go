@@ -19,6 +19,26 @@ import (
 
 var JWTSecret = []byte("your_secret_key")
 
+func (s *Service) CheckDuplicatedEmail(ctx context.Context, email string) (bool, error) {
+	_, err := s.userRepo.GetDetailByConditions(ctx, func(tx *gorm.DB) {
+		tx.Where("email = ?", email)
+	})
+
+	// If no user is found, the email is not duplicated
+	if errors.Is(err, gorm.ErrRecordNotFound) {
+		return false, nil // Email is NOT duplicated
+	}
+
+	// If there's an error other than "record not found", return the error
+	if err != nil {
+		return false, err
+	}
+
+	// If no error and a user is found, the email is duplicated
+	return true, nil // Email IS duplicated
+}
+
+
 func (s *Service) SignupUser(ctx context.Context, req models.SignupRequest) error {
 	storedOTP, err := s.otpRepo.GetDetailByConditions(ctx, func(tx *gorm.DB) {
 		tx.Where("target = ? AND type = ?", req.Email, common.VERIFY_EMAIL_TYPE)

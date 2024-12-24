@@ -53,6 +53,18 @@ func (h *Handler) GenerateOTP(c *gin.Context) {
 		return
 	}
 
+	if req.Type == common.VERIFY_EMAIL_TYPE {
+		isDuplicated, err := h.service.CheckDuplicatedEmail(c.Request.Context(), req.Email)
+		if err != nil {
+			common.AbortWithError(c, err)
+			return
+		}
+		if isDuplicated {
+			common.AbortWithError(c, common.ErrDuplicatedEmail)
+			return
+		}
+	}
+
 	otp, err := h.service.GenerateOTP(c.Request.Context(), req.Email, req.Type)
 	if err != nil {
 		common.AbortWithError(c, err)
