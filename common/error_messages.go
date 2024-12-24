@@ -33,6 +33,9 @@ var (
 	ErrAnswerStatisticTypeRequired = errors.New("answer_statistic_type_required")
 	ErrPasswordDuplicated          = errors.New("password duplicated")
 	ErrDuplicatedEmail             = errors.New("duplicated email")
+
+	ErrIdRequired = errors.New("id required")
+	ErrIdMustBeInt = errors.New("id must be an integer")
 )
 
 var listErrorData = []errData{

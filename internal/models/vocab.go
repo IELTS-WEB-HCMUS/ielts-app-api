@@ -43,3 +43,11 @@ type UserVocabBankAddRequest struct {
 	Note      *string `json:"note"`
 	Category  int     `json:"category" binding:"required"`
 }
+
+type UserVocabBankUpdateRequest struct {
+	Id       int     `json:"id" binding:"required"`
+	Example  *string `json:"example"`
+	Note     *string `json:"note"`
+	Status   *string `json:"status"`
+	Category *int    `json:"category"`
+}

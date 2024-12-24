@@ -64,3 +64,53 @@ func (s *Service) AddVocab(ctx context.Context, req models.UserVocabBankAddReque
 	successMessage := "Add vocab successfully"
 	return &successMessage, nil
 }
+
+func (s *Service) UpdateVocab(ctx context.Context, req models.UserVocabBankUpdateRequest) (*string, error) {
+	vocab, err := s.userVocabBankRepo.GetByID(ctx, req.Id)
+	if err != nil {
+		return nil, err
+	}
+
+	// Update fields only if they are not null
+	if req.Example != nil {
+		vocab.Example = req.Example
+	}
+	if req.Note != nil {
+		vocab.Note = req.Note
+	}
+	if req.Status != nil {
+		vocab.Status = *req.Status
+	}
+	if req.Category != nil {
+		vocab.Category = *req.Category
+	}
+
+	// Save updated vocab
+	_, err = s.userVocabBankRepo.Update(ctx, vocab.ID, vocab)
+	if err != nil {
+		return nil, err
+	}
+
+	successMessage := "Update vocab successfully"
+	return &successMessage, nil
+}
+
+func (s *Service) DeleteVocab(ctx context.Context, vocabID int) (*string, error) {
+	// Check if the vocab exists using GetByID
+	_, err := s.userVocabBankRepo.GetByID(ctx, vocabID)
+	if err != nil {
+		return nil, err
+	}
+
+	filter := repositories.Clause(func(tx *gorm.DB) {
+		tx.Where("id = ?", vocabID)
+	})
+
+	err = s.userVocabBankRepo.Delete(ctx, filter)
+	if err != nil {
+		return nil, err
+	}
+
+	successMessage := "Delete vocab successfully"
+	return &successMessage, nil
+}

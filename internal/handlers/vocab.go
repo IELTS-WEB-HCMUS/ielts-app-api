@@ -7,6 +7,8 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
+
+	"strconv"
 )
 
 func (h *Handler) GetVocabCategorires(c *gin.Context) {
@@ -47,6 +49,46 @@ func (h *Handler) AddVocab(c *gin.Context) {
 	}
 
 	message, err := h.service.AddVocab(c, req)
+	if err != nil {
+		common.AbortWithError(c, err)
+		return
+	}
+
+	c.JSON(http.StatusOK, common.ResponseOk(message))
+}
+
+func (h *Handler) UpdateVocab(c *gin.Context) {
+	var req models.UserVocabBankUpdateRequest
+	if err := c.ShouldBindJSON(&req); err != nil {
+		common.AbortWithError(c, common.ErrInvalidInput)
+		return
+	}
+
+	message, err := h.service.UpdateVocab(c, req)
+	if err != nil {
+		common.AbortWithError(c, err)
+		return
+	}
+
+	c.JSON(http.StatusOK, common.ResponseOk(message))
+}
+
+func (h *Handler) DeleteVocab(c *gin.Context) {
+	// Get ID from the URL parameter
+	idParam := c.Param("id")
+	if idParam == "" {
+		common.AbortWithError(c, common.ErrIdRequired)
+		return
+	}
+
+	id, err := strconv.Atoi(idParam)
+	if err != nil {
+		common.AbortWithError(c, common.ErrIdMustBeInt)
+		return
+	}
+
+	// Call the service layer to delete the vocab
+	message, err := h.service.DeleteVocab(c.Request.Context(), id)
 	if err != nil {
 		common.AbortWithError(c, err)
 		return
