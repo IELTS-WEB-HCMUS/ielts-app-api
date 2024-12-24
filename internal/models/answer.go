@@ -29,14 +29,8 @@ type Answer struct {
 	Quiz              int               `json:"quiz" gorm:"quiz"`
 	Detail            datatypes.JSON    `json:"detail" gorm:"type:jsonb"`
 	Summary           datatypes.JSON    `json:"summary" gorm:"type:jsonb"`
-	Type              int               `json:"type" gorm:"type"`
-	Status            string            `json:"status" gorm:"status"`
-	Note              datatypes.JSON    `json:"note" gorm:"note"`
-	QuizType          int               `json:"quiz_type"`
 	CompletedDuration int               `json:"completed_duration"`
 	Questions         []*Question       `json:"questions" gorm:"-"`
-	UserUpdated       *string           `json:"user_updated"`
-	DateUpdated       *time.Time        `json:"date_updated"`
 	Student           *User             `json:"student" gorm:"-"`
 	QuizDetail        *AnswerQuizDetail `json:"quiz_detail" gorm:"foreignKey:Quiz"`
 }

@@ -14,13 +14,8 @@ type Quiz struct {
 	Title            string         `json:"title" gorm:"title"`
 	Status           string         `json:"status" gorm:"status"`
 	TotalQuestions   *int           `json:"total_questions,omitempty" gorm:"-"`
-	Sort             *int           `json:"sort" gorm:"sort"`
 	Time             *int           `json:"time" gorm:"time"`
-	IsTest           *bool          `json:"is_test" gorm:"is_test"`
-	SimplifiedID     *int           `json:"simplified_id" gorm:"simplified_id"`
-	LimitSubmit      *int           `json:"limit_submit" gorm:"limit_submit"`
 	Thumbnail        *string        `json:"thumbnail" gorm:"thumbnail"`
-	QuizCode         string         `json:"quiz_code" gorm:"quiz_code"`
 	Description      *string        `json:"description" gorm:"description"`
 	Content          *string        `json:"content" gorm:"content"`
 	Parts            []*Part        `json:"parts" gorm:"many2many:quiz_part;"`
@@ -30,7 +25,6 @@ type Quiz struct {
 	DateCreated      *time.Time     `json:"date_created" gorm:"date_created"`
 	DateUpdated      *time.Time     `json:"date_updated" gorm:"date_updated"`
 	QuizPart         []QuizPart     `json:"quiz_part" gorm:"foreignKey:Quiz"`
-	QuizType         int            `json:"quiz_type" gorm:"quiz_type"`
 	MockTestID       *int           `json:"mock_test_id"`
 	MockTestType     int            `json:"mock_test_type"`
 	Listening        *string        `json:"listening"`
@@ -63,15 +57,6 @@ type ListQuizzesParamsUri struct {
 	SubmittedStatus int     `form:"submitted_status"`
 	TagTopic        *int    `form:"tag_topic" validate:"omitempty,min=1"`
 	TagBookType     *int    `form:"tag_book_type" validate:"omitempty,min=1"`
-}
-
-type QuizSkill struct {
-	ID       int    `json:"id" gorm:"id,primaryKey"`
-	PublicId string `json:"public_id"`
-}
-
-func (r QuizSkill) TableName() string {
-	return common.POSTGRES_TABLE_NAME_QUIZ_SKILL
 }
 
 type QuizParamsUri struct {

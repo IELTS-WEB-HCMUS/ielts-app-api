@@ -45,7 +45,6 @@ type ResetPasswordRequest struct {
 type OTPAttempt struct {
 	ID        uint      `gorm:"primaryKey" json:"id"`
 	OTPID     uint      `gorm:"not null" json:"otp_id"`
-	Value     string    `gorm:"size:6;not null" json:"value"`
 	IsSuccess bool      `gorm:"default:false" json:"is_success"`
 	CreatedAt time.Time `gorm:"autoCreateTime" json:"created_at"`
 }
