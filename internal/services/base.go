@@ -16,6 +16,8 @@ type Service struct {
 	tagSearchPositionRepo *repositories.TagSearchPositionRepo
 	answerRepo            *repositories.AnswerRepo
 	successQuizLogRepo    *repositories.SuccessQuizLogRepo
+
+	vocabCategoriesRepo *repositories.UserVocabCategoryRepository
 }
 
 func NewService(repos ...interface{}) *Service {
@@ -42,6 +44,8 @@ func NewService(repos ...interface{}) *Service {
 			service.answerRepo = repo.(*repositories.AnswerRepo)
 		case *repositories.SuccessQuizLogRepo:
 			service.successQuizLogRepo = repo.(*repositories.SuccessQuizLogRepo)
+		case *repositories.UserVocabCategoryRepository:
+			service.vocabCategoriesRepo = repo.(*repositories.UserVocabCategoryRepository)
 		default:
 			panic("Unknown repository type provided")
 		}

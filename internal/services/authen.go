@@ -38,7 +38,6 @@ func (s *Service) CheckDuplicatedEmail(ctx context.Context, email string) (bool,
 	return true, nil // Email IS duplicated
 }
 
-
 func (s *Service) SignupUser(ctx context.Context, req models.SignupRequest) error {
 	storedOTP, err := s.otpRepo.GetDetailByConditions(ctx, func(tx *gorm.DB) {
 		tx.Where("target = ? AND type = ?", req.Email, common.VERIFY_EMAIL_TYPE)
@@ -112,6 +111,18 @@ func (s *Service) SignupUser(ctx context.Context, req models.SignupRequest) erro
 		_, err = s.targetRepo.Create(ctx, &newUserTarget)
 		if err != nil {
 			return err
+		}
+
+		categories := []string{"Topic 1", "Topic 2", "Topic 3", "Topic 4"}
+		for _, category := range categories {
+			newUserVocabCategory := models.UserVocabCategory{
+				Name:   category,
+				UserID: user.ID,
+			}
+			_, err = s.vocabCategoriesRepo.Create(ctx, &newUserVocabCategory)
+			if err != nil {
+				return err
+			}
 		}
 	} else {
 		return common.ErrRoleNotFound

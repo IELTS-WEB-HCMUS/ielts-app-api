@@ -63,4 +63,8 @@ func (h *Handler) RegisterRoutes(c *gin.Engine) {
 		answerRoutes.GET("/statistics", middleware.UserAuthentication, h.GetAnswerStatistic)
 	}
 
+	vocabRoutes := c.Group("/api/vocabs")
+	{
+		vocabRoutes.GET("/get-categories", middleware.UserAuthentication, h.GetVocabCategorires)
+	}
 }
