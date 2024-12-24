@@ -61,34 +61,40 @@ func (s *Service) SignupUser(ctx context.Context, req models.SignupRequest) erro
 
 	if req.Role == common.ROLE_END_USER {
 		newUser := models.User{
-			Email:     req.Email,
-			Password:  string(hashedPassword),
-			RoleID:    common.ROLE_END_USER_UUID,
-			FirstName: &req.FirstName,
-			LastName:  &req.LastName,
+			Email:              req.Email,
+			Password:           string(hashedPassword),
+			RoleID:             common.ROLE_END_USER_UUID,
+			FirstName:          &req.FirstName,
+			LastName:           &req.LastName,
+			EmailNotifications: true,
+			Avatar:             common.DEFAULT_AVATAR,
+			VocabUsageCount:    common.DEFAULT_VOCAB_COUNT,
+			IsBanned:           false,
 		}
 		user, err := s.userRepo.Create(ctx, &newUser)
 		if err != nil {
 			return err
 		}
+
 		defaultDate := "1900-01-01" // default date
 		parsedTime, err := time.Parse(time.DateOnly, defaultDate)
 		if err != nil {
 			return err
 		}
 		newUserTarget := models.Target{
-			ID:                  user.ID,
-			TargetStudyDuration: 0,
-			TargetReading:       -1,
-			TargetListening:     -1,
-			TargetSpeaking:      -1,
-			TargetWriting:       -1,
-			NextExamDate:        parsedTime,
+			ID:              user.ID,
+			TargetReading:   -1,
+			TargetListening: -1,
+			TargetSpeaking:  -1,
+			TargetWriting:   -1,
+			NextExamDate:    parsedTime,
 		}
 		_, err = s.targetRepo.Create(ctx, &newUserTarget)
 		if err != nil {
 			return err
 		}
+	} else {
+		return common.ErrRoleNotFound
 	}
 
 	return nil
@@ -115,7 +121,6 @@ func (s *Service) LoginUser(ctx context.Context, req models.LoginRequest) (*stri
 					Email:     googleUser.Email,
 					RoleID:    common.ROLE_END_USER_UUID,
 					Provider:  common.USER_PROVIDER_GOOGLE,
-					IsActive:  true,
 				}
 				user, err = s.userRepo.Create(ctx, &newUser)
 				if err != nil {
@@ -127,13 +132,12 @@ func (s *Service) LoginUser(ctx context.Context, req models.LoginRequest) (*stri
 					return nil, err
 				}
 				newUserTarget := models.Target{
-					ID:                  user.ID,
-					TargetStudyDuration: 0,
-					TargetReading:       -1,
-					TargetListening:     -1,
-					TargetSpeaking:      -1,
-					TargetWriting:       -1,
-					NextExamDate:        parsedTime,
+					ID:              user.ID,
+					TargetReading:   -1,
+					TargetListening: -1,
+					TargetSpeaking:  -1,
+					TargetWriting:   -1,
+					NextExamDate:    parsedTime,
 				}
 				_, err = s.targetRepo.Create(ctx, &newUserTarget)
 				if err != nil {
@@ -219,7 +223,7 @@ func (s *Service) GenerateOTP(ctx context.Context, email string, typeToSend stri
 
 	newOTP := models.OTP{
 		Target:     email,
-		Type:       common.RESET_PASSSWORD_TYPE, // common.TypeVerifyEmail if req.Type = "verify_email" ==> Type: common.TypeVerifyEmail else Type: common.TypeResetPassword
+		Type:       typeToSend,
 		OTPCode:    otp,
 		ExpiredAt:  expiry,
 		IsVerified: false,
@@ -256,7 +260,6 @@ func (s *Service) ValidateOTP(ctx context.Context, email, otp string, typeToVali
 
 	newAttempt := models.OTPAttempt{
 		OTPID:     storedOTP.ID,
-		Value:     otp,
 		IsSuccess: false,
 		CreatedAt: currentTime,
 	}
@@ -292,7 +295,7 @@ func (s *Service) ValidateOTP(ctx context.Context, email, otp string, typeToVali
 }
 
 func (s *Service) ResetPassword(ctx context.Context, req models.ResetPasswordRequest) error {
-	_, err := s.userRepo.GetDetailByConditions(ctx, func(tx *gorm.DB) {
+	user, err := s.userRepo.GetDetailByConditions(ctx, func(tx *gorm.DB) {
 		tx.Where("email = ?", req.Email)
 	})
 	if err != nil {
@@ -319,6 +322,16 @@ func (s *Service) ResetPassword(ctx context.Context, req models.ResetPasswordReq
 	isStrongPassword, _ := passwordPattern.MatchString(req.NewPassword)
 	if !isStrongPassword {
 		return common.ErrWeakPassword
+	}
+
+	// Check if the new password is the same as the old one
+	err = bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(req.NewPassword))
+	if err == nil {
+		// If no error, it means the password matches
+		return common.ErrPasswordDuplicated
+	} else if !errors.Is(err, bcrypt.ErrMismatchedHashAndPassword) {
+		// If the error is something other than mismatch, return it
+		return err
 	}
 
 	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(req.NewPassword), bcrypt.DefaultCost)

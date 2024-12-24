@@ -10,6 +10,7 @@ import (
 
 var (
 	ErrUserNotFound                  = errors.New("user not found")
+	ErrRoleNotFound                  = errors.New("role not found")
 	ErrInvalidToken                  = errors.New("invalid token")
 	ErrInvalidInput                  = errors.New("invalid input")
 	ErrInvalidGoogleAuthenToken      = errors.New("invalid Google OAuth token")
@@ -30,6 +31,7 @@ var (
 	ErrRecordNotFound              = errors.New("record not found")
 	ErrQuizNotFound                = errors.New("quiz not found")
 	ErrAnswerStatisticTypeRequired = errors.New("answer_statistic_type_required")
+	ErrPasswordDuplicated          = errors.New("password duplicated")
 )
 
 var listErrorData = []errData{

@@ -20,9 +20,11 @@ const (
 )
 
 const (
-	ROLE_END_USER        = "end_user"
-	ROLE_END_USER_UUID   = "da0e07d4-ce51-4784-a5a9-a018434adf8e"
+	ROLE_END_USER        = "END_USER"
+	ROLE_END_USER_UUID   = "7b524019-4e1f-419d-bd15-30585f8c57ba"
 	USER_PROVIDER_GOOGLE = "google"
+	DEFAULT_AVATAR = "https://mdapjazwsbewinkegonp.supabase.co/storage/v1/object/public/portal_attachments/default_avt.jpg?t=2024-12-24T08%3A36%3A53.223Z"
+	DEFAULT_VOCAB_COUNT = 10
 )
 
 const (
