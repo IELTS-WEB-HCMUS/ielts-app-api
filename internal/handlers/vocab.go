@@ -96,3 +96,26 @@ func (h *Handler) DeleteVocab(c *gin.Context) {
 
 	c.JSON(http.StatusOK, common.ResponseOk(message))
 }
+
+func (h *Handler) GetVocabs(c *gin.Context) {
+	categoryID := c.Query("category_id") // Get the 'category_id' query parameter
+
+	if categoryID == "" {
+		common.AbortWithError(c, common.ErrCategoryIdRequired)
+		return
+	}
+
+	// Convert the categoryID to an integer
+	id, err := strconv.Atoi(categoryID)
+	if err != nil {
+		common.AbortWithError(c, common.ErrIdMustBeInt)
+		return
+	}
+
+	data, err := h.service.GetVocabs(c, id)
+	if err != nil {
+		c.JSON(common.INTERNAL_SERVER_ERR, gin.H{"error": err.Error()})
+		return
+	}
+	c.JSON(common.SUCCESS_STATUS, gin.H{"message": "Get user vocabularies succerfully", "data": data})
+}

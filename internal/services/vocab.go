@@ -2,6 +2,7 @@ package services
 
 import (
 	"context"
+	"ielts-web-api/common"
 	"ielts-web-api/internal/models"
 	"ielts-web-api/internal/repositories"
 
@@ -113,4 +114,26 @@ func (s *Service) DeleteVocab(ctx context.Context, vocabID int) (*string, error)
 
 	successMessage := "Delete vocab successfully"
 	return &successMessage, nil
+}
+
+func (s *Service) GetVocabs(ctx context.Context, categoryID int) ([]*models.UserVocabBank, error) {
+	params := models.QueryParams{
+		Offset:    0,
+		QuerySort: models.QuerySort{},
+		Preload:   nil,
+	}
+
+	userClause := repositories.Clause(func(tx *gorm.DB) {
+		tx.Where("category = ?", categoryID)
+	})
+
+	vocabularies, err := s.userVocabBankRepo.List(ctx, params, userClause)
+	if len(vocabularies) == 0 {
+		return nil, common.ErrCategoryNotFound
+	}
+	if err != nil {
+		return nil, err
+	}
+
+	return vocabularies, nil
 }

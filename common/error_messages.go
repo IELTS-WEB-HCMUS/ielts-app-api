@@ -34,8 +34,10 @@ var (
 	ErrPasswordDuplicated          = errors.New("password duplicated")
 	ErrDuplicatedEmail             = errors.New("duplicated email")
 
-	ErrIdRequired = errors.New("id required")
-	ErrIdMustBeInt = errors.New("id must be an integer")
+	ErrIdRequired         = errors.New("id required")
+	ErrIdMustBeInt        = errors.New("id must be an integer")
+	ErrCategoryIdRequired = errors.New("category_id required")
+	ErrCategoryNotFound   = errors.New("category not found")
 )
 
 var listErrorData = []errData{
