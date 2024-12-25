@@ -38,7 +38,6 @@ func (s *Service) CheckDuplicatedEmail(ctx context.Context, email string) (bool,
 	return true, nil // Email IS duplicated
 }
 
-
 func (s *Service) SignupUser(ctx context.Context, req models.SignupRequest) error {
 	storedOTP, err := s.otpRepo.GetDetailByConditions(ctx, func(tx *gorm.DB) {
 		tx.Where("target = ? AND type = ?", req.Email, common.VERIFY_EMAIL_TYPE)
@@ -136,11 +135,15 @@ func (s *Service) LoginUser(ctx context.Context, req models.LoginRequest) (*stri
 		if err != nil {
 			if errors.Is(err, gorm.ErrRecordNotFound) {
 				newUser := models.User{
-					FirstName: &googleUser.GivenName,
-					LastName:  &googleUser.FamilyName,
-					Email:     googleUser.Email,
-					RoleID:    common.ROLE_END_USER_UUID,
-					Provider:  common.USER_PROVIDER_GOOGLE,
+					FirstName:          &googleUser.GivenName,
+					LastName:           &googleUser.FamilyName,
+					Email:              googleUser.Email,
+					RoleID:             common.ROLE_END_USER_UUID,
+					Provider:           common.USER_PROVIDER_GOOGLE,
+					EmailNotifications: true,
+					Avatar:             common.DEFAULT_AVATAR,
+					VocabUsageCount:    common.DEFAULT_VOCAB_COUNT,
+					IsBanned:           false,
 				}
 				user, err = s.userRepo.Create(ctx, &newUser)
 				if err != nil {
@@ -171,6 +174,10 @@ func (s *Service) LoginUser(ctx context.Context, req models.LoginRequest) (*stri
 		user, err = s.userRepo.GetDetailByConditions(ctx, func(tx *gorm.DB) {
 			tx.Where("email = ?", req.Email)
 		})
+
+		if user.Provider == common.USER_PROVIDER_GOOGLE {
+			return nil, common.ErrGoogleAccount
+		}
 
 		if err != nil {
 			return nil, err
