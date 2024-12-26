@@ -72,4 +72,9 @@ func (h *Handler) RegisterRoutes(c *gin.Engine) {
 		vocabRoutes.DELETE("/:id", middleware.UserAuthentication, h.DeleteVocab)
 		vocabRoutes.POST("/", middleware.UserAuthentication, h.GetVocabs)
 	}
+
+	aiRoutes := c.Group("/api/ai")
+	{
+		aiRoutes.POST("/look-up-vocab", middleware.UserAuthentication, h.LookUpVocab)
+	}
 }
