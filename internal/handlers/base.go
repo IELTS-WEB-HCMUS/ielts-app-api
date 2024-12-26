@@ -63,4 +63,18 @@ func (h *Handler) RegisterRoutes(c *gin.Engine) {
 		answerRoutes.GET("/statistics", middleware.UserAuthentication, h.GetAnswerStatistic)
 	}
 
+	vocabRoutes := c.Group("/api/vocabs")
+	{
+		vocabRoutes.GET("/get-categories", middleware.UserAuthentication, h.GetVocabCategorires)
+		vocabRoutes.POST("/update-category", middleware.UserAuthentication, h.UpdateVocabCategory)
+		vocabRoutes.POST("/add", middleware.UserAuthentication, h.AddVocab)
+		vocabRoutes.POST("/update", middleware.UserAuthentication, h.UpdateVocab)
+		vocabRoutes.DELETE("/:id", middleware.UserAuthentication, h.DeleteVocab)
+		vocabRoutes.POST("/", middleware.UserAuthentication, h.GetVocabs)
+	}
+
+	aiRoutes := c.Group("/api/ai")
+	{
+		aiRoutes.POST("/look-up-vocab", middleware.UserAuthentication, h.LookUpVocab)
+	}
 }

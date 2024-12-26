@@ -33,6 +33,13 @@ var (
 	ErrAnswerStatisticTypeRequired = errors.New("answer_statistic_type_required")
 	ErrPasswordDuplicated          = errors.New("password duplicated")
 	ErrDuplicatedEmail             = errors.New("duplicated email")
+
+	ErrIdRequired         = errors.New("id required")
+	ErrIdMustBeInt        = errors.New("id must be an integer")
+	ErrCategoryIdRequired = errors.New("category_id required")
+	ErrCategoryNotFound   = errors.New("category not found")
+	ErrPageNotFound       = errors.New("page not found")
+
 	ErrGoogleAccount               = errors.New("please login with google")
 )
 

@@ -112,6 +112,18 @@ func (s *Service) SignupUser(ctx context.Context, req models.SignupRequest) erro
 		if err != nil {
 			return err
 		}
+
+		categories := []string{"Topic 1", "Topic 2", "Topic 3", "Topic 4"}
+		for _, category := range categories {
+			newUserVocabCategory := models.UserVocabCategory{
+				Name:   category,
+				UserID: user.ID,
+			}
+			_, err = s.vocabCategoriesRepo.Create(ctx, &newUserVocabCategory)
+			if err != nil {
+				return err
+			}
+		}
 	} else {
 		return common.ErrRoleNotFound
 	}
