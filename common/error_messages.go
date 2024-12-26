@@ -39,6 +39,8 @@ var (
 	ErrCategoryIdRequired = errors.New("category_id required")
 	ErrCategoryNotFound   = errors.New("category not found")
 	ErrPageNotFound       = errors.New("page not found")
+
+	ErrGoogleAccount               = errors.New("please login with google")
 )
 
 var listErrorData = []errData{
