@@ -2,9 +2,11 @@ package services
 
 import (
 	"context"
-	"ielts-web-api/common"
 	"ielts-web-api/internal/models"
 	"ielts-web-api/internal/repositories"
+
+	"fmt"
+	"math"
 
 	"gorm.io/gorm"
 )
@@ -116,24 +118,73 @@ func (s *Service) DeleteVocab(ctx context.Context, vocabID int) (*string, error)
 	return &successMessage, nil
 }
 
-func (s *Service) GetVocabs(ctx context.Context, categoryID int) ([]*models.UserVocabBank, error) {
-	params := models.QueryParams{
-		Offset:    0,
-		QuerySort: models.QuerySort{},
-		Preload:   nil,
+func (s *Service) GetVocabs(ctx context.Context, req models.UserVocabBankGetRequest) (*models.UserVocabBankGetResponse, error) {
+	params := models.QueryParams{}
+
+	// Set Pagination Parameters
+	if req.Limit != nil {
+		params.Limit = *req.Limit
 	}
 
+	// Calculate Offset from Page
+	params.Offset = (req.Page - 1) * params.Limit
+
+	// Define Filter Clause
 	userClause := repositories.Clause(func(tx *gorm.DB) {
-		tx.Where("category = ?", categoryID)
+		// Mandatory Category Filter
+		tx.Where("category = ?", req.Category)
+
+		// Optional WordClass Filter
+		if req.WordClass != "" {
+			tx.Where("word_class = ?", req.WordClass)
+		}
+
+		// Optional Status Filter
+		if req.Status != "" {
+			tx.Where("status = ?", req.Status)
+		}
+
+		// Keyword Search (Search in title and description)
+		if req.Keyword != "" {
+			searchPattern := fmt.Sprintf("%%%s%%", req.Keyword)
+			tx.Where("value ILIKE ?", searchPattern)
+		}
+
+		// Apply Sorting (Default to `created_at DESC`)
+		tx.Order("created_at DESC")
 	})
 
-	vocabularies, err := s.userVocabBankRepo.List(ctx, params, userClause)
-	if len(vocabularies) == 0 {
-		return nil, common.ErrCategoryNotFound
-	}
+	// Fetch Total Count
+	totalItems, err := s.userVocabBankRepo.Count(ctx, models.QueryParams{Offset: 0}, userClause)
 	if err != nil {
 		return nil, err
 	}
 
-	return vocabularies, nil
+	// Fetch Paginated Records
+	vocabularies, err := s.userVocabBankRepo.List(ctx, params, userClause)
+	if err != nil {
+		return nil, err
+	}
+
+	// Calculate Total Pages
+	totalPages := 0
+	if params.Limit > 0 {
+		totalPages = int(math.Ceil(float64(totalItems) / float64(params.Limit)))
+	}
+	if totalPages == 0 {
+		totalPages = 1
+	}
+
+	// Calculate Current Page
+	currentPage := req.Page
+
+	// Build Response
+	response := &models.UserVocabBankGetResponse{
+		Vocabularies: vocabularies,
+		TotalItems:   totalItems,
+		TotalPages:   totalPages,
+		CurrentPage:  currentPage,
+	}
+
+	return response, nil
 }

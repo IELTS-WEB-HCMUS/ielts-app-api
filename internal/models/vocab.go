@@ -28,6 +28,7 @@ type UserVocabBank struct {
 	Note      *string `json:"note" gorm:"column:note;default:null"`
 	Status    string  `json:"status" gorm:"column:status;default:Chưa học"`
 	Category  int     `json:"-" gorm:"column:category;not null"`
+	CreatedAt string  `json:"-" gorm:"column:created_at;default:CURRENT_TIMESTAMP"`
 }
 
 func (UserVocabBank) TableName() string {
@@ -50,4 +51,20 @@ type UserVocabBankUpdateRequest struct {
 	Note     *string `json:"note"`
 	Status   *string `json:"status"`
 	Category *int    `json:"category"`
+}
+
+type UserVocabBankGetRequest struct {
+	Category  int    `json:"category" binding:"required"`
+	WordClass string `json:"word_class"`
+	Status    string `json:"status"`
+	Keyword   string `json:"keyword"`
+	Page      int    `json:"page" binding:"required"`
+	Limit     *int   `json:"limit"`
+}
+
+type UserVocabBankGetResponse struct {
+	Vocabularies []*UserVocabBank `json:"vocabularies"`
+	TotalItems   int64            `json:"total_items"`
+	TotalPages   int              `json:"total_pages"`
+	CurrentPage  int              `json:"current_page"`
 }

@@ -38,6 +38,7 @@ var (
 	ErrIdMustBeInt        = errors.New("id must be an integer")
 	ErrCategoryIdRequired = errors.New("category_id required")
 	ErrCategoryNotFound   = errors.New("category not found")
+	ErrPageNotFound       = errors.New("page not found")
 )
 
 var listErrorData = []errData{
