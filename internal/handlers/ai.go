@@ -14,7 +14,18 @@ func (h *Handler) LookUpVocab(c *gin.Context) {
 		return
 	}
 
-	data, err := h.service.LookUpVocab(c, req)
+	ok, userJWTProfile := common.ProfileFromJwt(c)
+	if !ok {
+		c.JSON(common.INTERNAL_SERVER_ERR, gin.H{"error": "Authentication failed"})
+		return
+	}
+	err := h.service.CheckVocabUsageCount(c, userJWTProfile.Id)
+	if err != nil {
+		common.AbortWithError(c, err)
+		return
+	}
+
+	data, err := h.service.LookUpVocab(c, req, userJWTProfile.Id)
 	if err != nil {
 		common.AbortWithError(c, err)
 		return

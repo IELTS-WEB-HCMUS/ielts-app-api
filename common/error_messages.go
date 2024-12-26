@@ -41,6 +41,7 @@ var (
 	ErrPageNotFound       = errors.New("page not found")
 
 	ErrGoogleAccount               = errors.New("please login with google")
+	ErrVocabUsageCountExceeded	 = errors.New("vocab usage count exceeded")
 )
 
 var listErrorData = []errData{
