@@ -1,6 +1,9 @@
 package models
 
-import "ielts-web-api/common"
+import (
+	"ielts-web-api/common"
+	"time"
+)
 
 type UserVocabCategory struct {
 	ID     int    `json:"id" gorm:"column:id;primaryKey;autoIncrement"`
@@ -19,16 +22,16 @@ type UpdateVocabCategoryRequest struct {
 }
 
 type UserVocabBank struct {
-	ID        int     `json:"id" gorm:"column:id;primaryKey;autoIncrement"`
-	Value     string  `json:"value" gorm:"column:value;not null"`
-	WordClass string  `json:"word_class" gorm:"column:word_class;not null"`
-	Meaning   string  `json:"meaning" gorm:"column:meaning;not null"`
-	IPA       string  `json:"ipa" gorm:"column:ipa;not null"`
-	Example   *string `json:"example" gorm:"column:example;default:null"`
-	Note      *string `json:"note" gorm:"column:note;default:null"`
-	Status    string  `json:"status" gorm:"column:status;default:Chưa học"`
-	Category  int     `json:"-" gorm:"column:category;not null"`
-	CreatedAt string  `json:"-" gorm:"column:created_at;default:CURRENT_TIMESTAMP"`
+	ID        int       `json:"id" gorm:"column:id;primaryKey;autoIncrement"`
+	Value     string    `json:"value" gorm:"column:value;not null"`
+	WordClass string    `json:"word_class" gorm:"column:word_class;not null"`
+	Meaning   string    `json:"meaning" gorm:"column:meaning;not null"`
+	IPA       string    `json:"ipa" gorm:"column:ipa;not null"`
+	Example   *string   `json:"example" gorm:"column:example;default:null"`
+	Note      *string   `json:"note" gorm:"column:note;default:null"`
+	Status    string    `json:"status" gorm:"column:status;default:Chưa học"`
+	Category  int       `json:"-" gorm:"column:category;not null"`
+	CreatedAt time.Time `json:"-" gorm:"column:created_at;default:CURRENT_TIMESTAMP"`
 }
 
 func (UserVocabBank) TableName() string {
