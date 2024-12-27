@@ -52,7 +52,7 @@ func (s *Service) SignupUser(ctx context.Context, req models.SignupRequest) erro
 		return common.ErrInvalidVerifyToken
 	}
 
-	mailPattern := regexp2.MustCompile(`^((?!\.)[\w\-_.]*[^.])(@\w+)(\.\w+(\.\w+)?[^.\W])$`, regexp2.None)
+	mailPattern := regexp2.MustCompile(`^((?!\.)[\w\-_.]*[^.])(@\w+)(\.\w+(\.\w+)*[^.\W])$`, regexp2.None)
 	isValidMail, _ := mailPattern.MatchString(req.Email)
 	if !isValidMail {
 		return common.ErrInvalidEmailFormat
