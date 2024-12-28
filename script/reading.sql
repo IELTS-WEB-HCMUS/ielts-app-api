@@ -79,3 +79,6 @@ CREATE TABLE quiz_tag_search (
 
 
 --DONE--
+
+ALTER TABLE public.question 
+ADD column description TEXT
