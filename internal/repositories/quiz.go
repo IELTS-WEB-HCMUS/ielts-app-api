@@ -73,19 +73,19 @@ func (r *QuizRepo) GetQuizSubmitted(ctx context.Context, quizId int) (*models.Qu
 
 	// Perform a single query with JOINs
 	err := r.db.Raw(`
-		SELECT 
+		SELECT
             q.id AS quiz_id, q.title AS quiz_title, q.type AS quiz_type,
             p.id AS part_id, p.quiz AS quiz_id_part, p.passage AS part_passage,
-            qu.id AS question_id, qu.part AS question_part_id, qu.question_type AS question_type, 
+            qu.id AS question_id, qu.part AS question_part_id, qu.question_type AS question_type,
 		    qu.multiple_choice AS question_multiple, qu.gap_fill_in_blank AS question_gap_fill_in_blank,
 			qu.type AS question_question_type
-        FROM 
+        FROM
             public.quiz q
-        LEFT JOIN 
+        LEFT JOIN
             public.part p ON q.id = p.quiz
-        LEFT JOIN 
+        LEFT JOIN
             public.question qu ON p.id = qu.part
-        WHERE 
+        WHERE
             q.id = ?
 	`, quizId).Scan(&results).Error
 
@@ -110,7 +110,7 @@ func (r *QuizRepo) GetQuizSubmitted(ctx context.Context, quizId int) (*models.Qu
 				ID:        result.PartID,
 				Quiz:      result.QuizIDPart,
 				Passage:   result.PartPassage,
-				Questions: []*models.Question{},
+				Questions: []models.Question{},
 			}
 			quiz.Parts = append(quiz.Parts, part)
 			partMap[result.PartID] = part
@@ -123,10 +123,15 @@ func (r *QuizRepo) GetQuizSubmitted(ctx context.Context, quizId int) (*models.Qu
 				Type:           result.QuestionQuestionType,
 				QuestionType:   result.QuestionType,
 				MultipleChoice: result.QuestionMultiple,
-				GapFillInBlank: result.QuestionGapFillInBlank,
+				GapFillInBlank: func() datatypes.JSON {
+					if result.QuestionGapFillInBlank != nil {
+						return datatypes.JSON([]byte(*result.QuestionGapFillInBlank))
+					}
+					return datatypes.JSON([]byte("null"))
+				}(),
 			}
 			if part, exists := partMap[result.PartID]; exists {
-				part.Questions = append(part.Questions, question)
+				part.Questions = append(part.Questions, *question)
 			}
 		}
 	}

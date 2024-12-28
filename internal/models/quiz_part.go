@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"ielts-web-api/common"
-	"regexp"
 )
 
 type QuizPartM struct {
@@ -16,8 +15,8 @@ type QuizPartM struct {
 
 type PartV2 struct {
 	ID            int `json:"id"`
-	Passage       int `json:"passage"`
 	QuestionCount int `json:"question_count"`
+	Quiz          int `json:"quiz" gorm:"column:quiz"`
 }
 
 func (PartV2) TableName() string {
@@ -30,7 +29,6 @@ func (QuizPartM) TableName() string {
 
 type QuizPart struct {
 	Id       int        `json:"id"`
-	Passage  int        `json:"passage"`
 	Quiz     int        `json:"quiz"`
 	Question []Question `json:"question,omitempty" gorm:"foreignKey:Part"`
 	Type     int        `json:"type"`
@@ -56,9 +54,7 @@ func (r Question) CountTotalSubQuestion() int {
 	case common.QUESTION_TYPE_SINGLE_SELECTION:
 		return 1
 	case common.QUESTION_TYPE_FILL_IN_THE_BLANK:
-		re := regexp.MustCompile(`{\[([^[\]]+)\]\[(\d+(?:-\d+)?)\]}`)
-		matches := re.FindAllStringSubmatch(*r.GapFillInBlank, -1)
-		return len(matches)
+		return 1
 	case common.QUESTION_TYPE_MULTIPLE:
 		var choices []QuestionMultipleChoice
 		if r.MultipleChoice == nil {

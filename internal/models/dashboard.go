@@ -7,21 +7,16 @@ import (
 )
 
 type SuccessQuizLog struct {
-	Id           int       `json:"id"`
-	Passage      int       `json:"passage"`
-	Total        int       `json:"total"`
-	Success      int       `json:"success"`
-	CreateAt     int       `json:"create_at" gorm:"autoCreateTime"`
-	Date         time.Time `json:"date"`
-	UpdateAt     int       `json:"update_at" gorm:"autoUpdateTime"`
-	Status       int       `json:"status"`
-	Skill        int       `json:"skill"`
-	QuestionType string    `json:"question_type"`
-	UserId       string    `json:"user_id"`
-	Failed       int       `json:"failed"`
-	Skipped      int       `json:"skipped"`
-	AnswerId     int       `json:"answer_id"`
-	QuizType     int       `json:"quiz_type"`
+	Id           int    `json:"id"`
+	Passage      int    `json:"passage"`
+	Total        int    `json:"total"`
+	Success      int    `json:"success"`
+	Skill        int    `json:"skill"`
+	QuestionType string `json:"question_type"`
+	UserId       string `json:"user_id"`
+	Failed       int    `json:"failed"`
+	Skipped      int    `json:"skipped"`
+	AnswerId     int    `json:"answer_id"`
 }
 
 type SuccessDashboardData struct {
