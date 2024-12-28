@@ -3,46 +3,31 @@ package models
 import (
 	"ielts-web-api/common"
 	"time"
-
-	"gorm.io/datatypes"
 )
 
 type Quiz struct {
-	ID               int            `json:"id" gorm:"id,primaryKey"`
-	Type             int            `json:"type" gorm:"type"`
-	Mode             int            `json:"mode" gorm:"mode"`
-	Title            string         `json:"title" gorm:"title"`
-	Status           string         `json:"status" gorm:"status"`
-	TotalQuestions   *int           `json:"total_questions,omitempty" gorm:"-"`
-	Sort             *int           `json:"sort" gorm:"sort"`
-	Time             *int           `json:"time" gorm:"time"`
-	IsTest           *bool          `json:"is_test" gorm:"is_test"`
-	SimplifiedID     *int           `json:"simplified_id" gorm:"simplified_id"`
-	LimitSubmit      *int           `json:"limit_submit" gorm:"limit_submit"`
-	Thumbnail        *string        `json:"thumbnail" gorm:"thumbnail"`
-	QuizCode         string         `json:"quiz_code" gorm:"quiz_code"`
-	Description      *string        `json:"description" gorm:"description"`
-	Content          *string        `json:"content" gorm:"content"`
-	Parts            []*Part        `json:"parts" gorm:"many2many:quiz_part;"`
-	TagSearches      []*TagSearch   `json:"tags" gorm:"many2many:quiz_tag_search;"`
-	UserCreated      string         `json:"user_created" gorm:"user_created"`
-	UserUpdated      string         `json:"user_updated" gorm:"user_updated"`
-	DateCreated      *time.Time     `json:"date_created" gorm:"date_created"`
-	DateUpdated      *time.Time     `json:"date_updated" gorm:"date_updated"`
-	QuizPart         []QuizPart     `json:"quiz_part" gorm:"foreignKey:Quiz"`
-	QuizType         int            `json:"quiz_type" gorm:"quiz_type"`
-	MockTestID       *int           `json:"mock_test_id"`
-	MockTestType     int            `json:"mock_test_type"`
-	Listening        *string        `json:"listening"`
-	Question         *string        `json:"question"`
-	Samples          *string        `json:"samples"`
-	VoteCount        int            `json:"vote_count"`
-	Questions        []*Question    `json:"questions,omitempty" gorm:"-"`
-	QuizPartMs       []QuizPartM    `json:"quiz_part_ms,omitempty" gorm:"foreignKey:QuizID"`
-	TotalSubmitted   int            `json:"total_submitted"`
-	IsSubmitted      *bool          `json:"is_submitted,omitempty" gorm:"-"`
-	Meta             datatypes.JSON `json:"meta,omitempty"`
-	ShortDescription *string        `json:"short_description,omitempty"`
+	ID          int          `json:"id" gorm:"id,primaryKey"`
+	Status      string       `json:"status" gorm:"status"`
+	UserCreated string       `json:"user_created" gorm:"user_created"`
+	UserUpdated string       `json:"user_updated" gorm:"user_updated"`
+	DateCreated *time.Time   `json:"date_created" gorm:"date_created"`
+	DateUpdated *time.Time   `json:"date_updated" gorm:"date_updated"`
+	Type        int          `json:"type" gorm:"type"`
+	Content     *string      `json:"content" gorm:"content"`
+	Title       string       `json:"title" gorm:"title"`
+	Time        *int         `json:"time" gorm:"time"`
+	Listening   *string      `json:"listening" gorm:"listening_file"`
+	Level       *int         `json:"level,omitempty" gorm:"level"`
+	VoteCount   int          `json:"vote_count" gorm:"vote_count"`
+	Description *string      `json:"description,omitempty" gorm:"description"`
+	Thumbnail   *string      `json:"thumbnail" gorm:"thumbnail"`
+	Mode        int          `json:"mode" gorm:"mode"`
+	IsPublic    bool         `json:"is_public" gorm:"is_public"`
+	Parts       []*Part      `json:"parts" gorm:"many2many:quiz_part;"`
+	TagSearches []*TagSearch `json:"tags" gorm:"many2many:quiz_tag_search;"`
+	QuizPart    []QuizPart   `json:"quiz_part" gorm:"foreignKey:Quiz"`
+	QuizPartMs  []QuizPartM  `json:"quiz_part_ms,omitempty" gorm:"foreignKey:QuizID"`
+	IsSubmitted *bool        `json:"is_submitted,omitempty" gorm:"-"`
 }
 
 func (r Quiz) TableName() string {
@@ -56,13 +41,9 @@ type ListQuizzesParamsUri struct {
 	TagPassage      *int    `form:"tag_passage" validate:"omitempty,min=1"`
 	TagSection      *int    `form:"tag_section" validate:"omitempty,min=1"`
 	TagQuestionType *int    `form:"tag_question_type" validate:"omitempty,min=1"`
-	IsTest          *bool   `form:"is_test"`
-	HasSimplified   *bool   `form:"has_simplified"`
 	Search          *string `form:"search"`
 	Mode            *int    `form:"mode" validate:"omitempty,min=0"`
 	SubmittedStatus int     `form:"submitted_status"`
-	TagTopic        *int    `form:"tag_topic" validate:"omitempty,min=1"`
-	TagBookType     *int    `form:"tag_book_type" validate:"omitempty,min=1"`
 }
 
 type QuizSkill struct {

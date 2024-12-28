@@ -3,12 +3,14 @@ package services
 import (
 	"context"
 	"errors"
+	"fmt"
 	"ielts-web-api/common"
 	"ielts-web-api/internal/models"
 	"ielts-web-api/internal/repositories"
 	"log"
 	"sync"
 	"time"
+
 	"gorm.io/gorm"
 )
 
@@ -29,9 +31,7 @@ func (s *Service) GetQuizzes(ctx context.Context, userID string, request *models
 
 	if request.TagPassage != nil ||
 		request.TagSection != nil ||
-		request.TagQuestionType != nil ||
-		request.TagTopic != nil ||
-		request.TagBookType != nil {
+		request.TagQuestionType != nil {
 
 		tagIDs := []int{}
 		if request.TagSection != nil {
@@ -42,14 +42,6 @@ func (s *Service) GetQuizzes(ctx context.Context, userID string, request *models
 		}
 		if request.TagQuestionType != nil {
 			tagIDs = append(tagIDs, *request.TagQuestionType)
-		}
-
-		if request.TagTopic != nil {
-			tagIDs = append(tagIDs, *request.TagTopic)
-		}
-
-		if request.TagBookType != nil {
-			tagIDs = append(tagIDs, *request.TagBookType)
 		}
 
 		// get quizIDs have matched tags
@@ -67,9 +59,9 @@ func (s *Service) GetQuizzes(ctx context.Context, userID string, request *models
 		})
 	}
 
-	if request.IsTest != nil {
+	if request.Mode != nil {
 		filters = append(filters, func(tx *gorm.DB) {
-			tx.Where("quiz.is_test = ?", *request.IsTest)
+			tx.Where("quiz.mode = ?", *request.Mode)
 		})
 	}
 
@@ -174,6 +166,7 @@ func (s *Service) GetQuizzes(ctx context.Context, userID string, request *models
 		quizIDs = append(quizIDs, record.ID)
 		_, submitted := quizSubmittedMap[record.ID]
 		record.IsSubmitted = &submitted
+		fmt.Println("record.IsSubmitted: ", record.IsSubmitted)
 	}
 
 	resData.Items = records
@@ -188,9 +181,9 @@ func (s *Service) GetQuiz(ctx context.Context, req *models.QuizParamsUri, userID
 	filters := []repositories.Clause{}
 	filters = append(filters, func(tx *gorm.DB) {
 		tx.Preload("Parts", func(db *gorm.DB) *gorm.DB {
-			return db.Joins("INNER JOIN quiz_part ON quiz_part.quiz_id = ? AND quiz_part.part_id = part.id", req.QuizID).Order("quiz_part.sort")
+			return db.Joins("INNER JOIN quiz_part ON quiz_part.quiz_id = ? AND quiz_part.part_id = part.quiz", req.QuizID).Order("quiz_part.sort")
 		}).Preload("Parts.Questions", func(db *gorm.DB) *gorm.DB {
-			return db.Order("question.sort")
+			return db.Order("question.order")
 		}).Where("id", req.QuizID)
 	})
 
@@ -209,11 +202,9 @@ func (s *Service) GetQuiz(ctx context.Context, req *models.QuizParamsUri, userID
 	return quiz, nil
 }
 
-
 func (s *Service) SubmitQuizAnswer(ctx context.Context, userId string, quizId int, results models.QuizAnswer) (answer *models.Answer, err error) {
 	// Fetch quiz details with timeout
-	ctx, cancel := context.WithTimeout(ctx, 2*time.Second)
-	defer cancel()
+	fmt.Println("SubmitQuizAnswer")
 
 	// Get quiz and validate
 	q, err := s.quizRepo.GetByID(ctx, quizId)
@@ -221,6 +212,7 @@ func (s *Service) SubmitQuizAnswer(ctx context.Context, userId string, quizId in
 		log.Printf("Failed to fetch quiz by ID: %v, Error: %v", quizId, err)
 		return nil, err
 	}
+	fmt.Println("SubmitQuizAnswer - Fetched Quiz:", q)
 
 	// Get quiz skill details
 	t, err := s.quizSkillRepo.GetByID(ctx, q.Type)
@@ -229,11 +221,10 @@ func (s *Service) SubmitQuizAnswer(ctx context.Context, userId string, quizId in
 		return nil, err
 	}
 
-	// Set quiz type
-	results.Answer.QuizType = q.QuizType
+	fmt.Println("SubmitQuizAnswer - Fetched Quiz Skill:", t)
 
 	// Process based on quiz type
-	if t.PublicId == common.QuizSkillReading {
+	if t.ID == common.QuizSkillReading {
 		answer, _, err = s.submitReadingListening(ctx, userId, quizId, results)
 		if err != nil {
 			return nil, err
@@ -242,6 +233,7 @@ func (s *Service) SubmitQuizAnswer(ctx context.Context, userId string, quizId in
 
 	return answer, nil
 }
+
 func (s *Service) submitReadingListening(ctx context.Context, userId string, quizId int, results models.QuizAnswer) (*models.Answer, map[int]models.QuestionSuccessCount, error) {
 	// Save initial answer data
 	results.Answer.UserCreated = userId
@@ -258,8 +250,7 @@ func (s *Service) submitReadingListening(ctx context.Context, userId string, qui
 	log.Printf("[DEBUG] Answer Created - Answer ID: %d", answer.ID)
 
 	// Fetch submitted quiz with timeout
-	ctx, cancel := context.WithTimeout(ctx, 2*time.Second)
-	defer cancel()
+
 	quiz, err := s.quizRepo.GetQuizSubmitted(ctx, quizId)
 	if err != nil {
 		log.Printf("[ERROR] Failed to fetch quiz submitted: %v", err)
@@ -290,15 +281,12 @@ func (s *Service) submitReadingListening(ctx context.Context, userId string, qui
 		logs = append(logs, &models.SuccessQuizLog{
 			Total:        stat.Total,
 			Success:      stat.Success,
-			Date:         time.Now(),
-			Status:       1,
 			Skill:        quizCfg[0].Type,
 			QuestionType: qType,
 			UserId:       userId,
 			Skipped:      stat.Skip,
 			Failed:       stat.Failed,
 			AnswerId:     answer.ID,
-			QuizType:     results.Answer.QuizType,
 		})
 	}
 	for passageID, stat := range passageStats {
@@ -306,15 +294,12 @@ func (s *Service) submitReadingListening(ctx context.Context, userId string, qui
 		logs = append(logs, &models.SuccessQuizLog{
 			Total:    stat.Total,
 			Success:  stat.Success,
-			Date:     time.Now(),
-			Status:   1,
 			Skill:    quizCfg[0].Type,
 			Passage:  passageID,
 			UserId:   userId,
 			Skipped:  stat.Skip,
 			Failed:   stat.Failed,
 			AnswerId: answer.ID,
-			QuizType: results.Answer.QuizType,
 		})
 	}
 
@@ -353,7 +338,7 @@ func (s *Service) countAnswerStatistic(ctx context.Context, quiz *models.Quiz, c
 		resultMap[correction.Id] = correction.QuizResult
 	}
 
-	// Process quiz parts concurrently
+	//Process quiz parts concurrently
 	for _, part := range quiz.Parts {
 		log.Printf("[DEBUG] Processing Part ID: %d, Questions Count: %d", part.ID, len(part.Questions))
 		wg.Add(1)
@@ -361,8 +346,8 @@ func (s *Service) countAnswerStatistic(ctx context.Context, quiz *models.Quiz, c
 			defer wg.Done()
 			for _, question := range part.Questions {
 				subQuestionCount := question.CountTotalSubQuestion()
-				processPassageStats(&passageStats, part, resultMap, *question, subQuestionCount)
-				processQuestionStats(&questionStats, resultMap, *question, subQuestionCount)
+				processPassageStats(&passageStats, part, resultMap, question, subQuestionCount)
+				processQuestionStats(&questionStats, resultMap, question, subQuestionCount)
 			}
 		}(*part)
 	}
