@@ -19,6 +19,19 @@ import (
 
 var JWTSecret = []byte("your_secret_key")
 
+func (s *Service) CheckGoogleAccountForOtp(ctx context.Context, email string) error {
+	_, err := s.userRepo.GetDetailByConditions(ctx, func(tx *gorm.DB) {
+		tx.Where("email = ? AND provider = ?", email, common.USER_PROVIDER_GOOGLE)
+	})
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil
+		}
+		return err
+	}
+	return common.ErrGoogleAccountNoReset
+}
+
 func (s *Service) CheckDuplicatedEmail(ctx context.Context, email string) (bool, error) {
 	_, err := s.userRepo.GetDetailByConditions(ctx, func(tx *gorm.DB) {
 		tx.Where("email = ?", email)

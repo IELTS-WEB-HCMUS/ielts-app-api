@@ -53,6 +53,14 @@ func (h *Handler) GenerateOTP(c *gin.Context) {
 		return
 	}
 
+	if req.Type == common.RESET_PASSSWORD_TYPE {
+		err := h.service.CheckGoogleAccountForOtp(c.Request.Context(), req.Email)
+		if err != nil {
+			common.AbortWithError(c, err)
+			return
+		}
+	}
+
 	isDuplicated, err := h.service.CheckDuplicatedEmail(c.Request.Context(), req.Email)
 	if req.Type == common.VERIFY_EMAIL_TYPE {
 		if err != nil {
