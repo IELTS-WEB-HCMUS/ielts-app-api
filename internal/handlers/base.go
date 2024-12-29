@@ -77,4 +77,9 @@ func (h *Handler) RegisterRoutes(c *gin.Engine) {
 	{
 		aiRoutes.POST("/look-up-vocab", middleware.UserAuthentication, h.LookUpVocab)
 	}
+
+	voteRoutes := c.Group("/v1/vote")
+	{
+		voteRoutes.POST("", middleware.UserAuthentication, h.Vote)
+	}
 }
