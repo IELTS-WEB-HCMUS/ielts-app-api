@@ -33,6 +33,7 @@ type Answer struct {
 	Questions         []*Question       `json:"questions" gorm:"-"`
 	Student           *User             `json:"student" gorm:"-"`
 	QuizDetail        *AnswerQuizDetail `json:"quiz_detail" gorm:"foreignKey:Quiz"`
+	Type              int               `json:"type" gorm:"type"`
 }
 
 type AnswerQuizDetail struct {

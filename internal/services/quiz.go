@@ -153,6 +153,20 @@ func (s *Service) GetQuizzes(ctx context.Context, userID string, request *models
 			QuerySort: models.QuerySort{
 				Origin: request.Sort,
 			},
+			Selected: []string{
+				"quiz.id",
+				"quiz.status",
+				"quiz.type",
+				"quiz.title",
+				"quiz.time",
+				"quiz.listening_file AS listening",
+				"quiz.level",
+				"quiz.vote_count",
+				"quiz.description",
+				"quiz.thumbnail",
+				"quiz.mode",
+				"quiz.is_public",
+			},
 		},
 		filters...,
 	)
