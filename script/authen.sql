@@ -32,3 +32,6 @@ CREATE TABLE public.student_target (
     target_writing FLOAT,                            -- Writing score target
     next_exam_date TIMESTAMPTZ                       -- Timestamp for the next exam date
 );
+
+
+--DONE--

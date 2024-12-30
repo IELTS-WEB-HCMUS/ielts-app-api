@@ -27,3 +27,4 @@ CREATE UNIQUE INDEX answer_pkey ON public.answers (id);
 CREATE INDEX answer_quiz_id_idx ON public.answers (quiz);
 
 
+--DONE--

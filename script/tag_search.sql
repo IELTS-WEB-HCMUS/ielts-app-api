@@ -9,3 +9,6 @@ CREATE TABLE tag_position (
     title TEXT NOT NULL,                           -- Title of the position
     position TEXT NOT NULL                         -- Display position of the tag on the interface
 );
+
+
+--DONE--

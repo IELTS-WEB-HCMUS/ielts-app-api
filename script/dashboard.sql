@@ -21,3 +21,5 @@ CREATE TABLE public.success_quiz_log (
     failed INT2 DEFAULT 0,
     skipped INT2 DEFAULT 0
 );
+
+--DONE--

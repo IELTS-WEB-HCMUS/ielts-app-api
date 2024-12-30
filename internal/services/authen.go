@@ -19,6 +19,38 @@ import (
 
 var JWTSecret = []byte("your_secret_key")
 
+func (s *Service) CheckGoogleAccountForOtp(ctx context.Context, email string) error {
+	_, err := s.userRepo.GetDetailByConditions(ctx, func(tx *gorm.DB) {
+		tx.Where("email = ? AND provider = ?", email, common.USER_PROVIDER_GOOGLE)
+	})
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil
+		}
+		return err
+	}
+	return common.ErrGoogleAccountNoReset
+}
+
+func (s *Service) CheckDuplicatedEmail(ctx context.Context, email string) (bool, error) {
+	_, err := s.userRepo.GetDetailByConditions(ctx, func(tx *gorm.DB) {
+		tx.Where("email = ?", email)
+	})
+
+	// If no user is found, the email is not duplicated
+	if errors.Is(err, gorm.ErrRecordNotFound) {
+		return false, nil // Email is NOT duplicated
+	}
+
+	// If there's an error other than "record not found", return the error
+	if err != nil {
+		return false, err
+	}
+
+	// If no error and a user is found, the email is duplicated
+	return true, nil // Email IS duplicated
+}
+
 func (s *Service) SignupUser(ctx context.Context, req models.SignupRequest) error {
 	storedOTP, err := s.otpRepo.GetDetailByConditions(ctx, func(tx *gorm.DB) {
 		tx.Where("target = ? AND type = ?", req.Email, common.VERIFY_EMAIL_TYPE)
@@ -33,7 +65,7 @@ func (s *Service) SignupUser(ctx context.Context, req models.SignupRequest) erro
 		return common.ErrInvalidVerifyToken
 	}
 
-	mailPattern := regexp2.MustCompile(`^((?!\.)[\w\-_.]*[^.])(@\w+)(\.\w+(\.\w+)?[^.\W])$`, regexp2.None)
+	mailPattern := regexp2.MustCompile(`^((?!\.)[\w\-_.]*[^.])(@\w+)(\.\w+(\.\w+)*[^.\W])$`, regexp2.None)
 	isValidMail, _ := mailPattern.MatchString(req.Email)
 	if !isValidMail {
 		return common.ErrInvalidEmailFormat
@@ -61,34 +93,52 @@ func (s *Service) SignupUser(ctx context.Context, req models.SignupRequest) erro
 
 	if req.Role == common.ROLE_END_USER {
 		newUser := models.User{
-			Email:     req.Email,
-			Password:  string(hashedPassword),
-			RoleID:    common.ROLE_END_USER_UUID,
-			FirstName: &req.FirstName,
-			LastName:  &req.LastName,
+			Email:              req.Email,
+			Password:           string(hashedPassword),
+			RoleID:             common.ROLE_END_USER_UUID,
+			FirstName:          &req.FirstName,
+			LastName:           &req.LastName,
+			EmailNotifications: true,
+			Avatar:             common.DEFAULT_AVATAR,
+			VocabUsageCount:    common.DEFAULT_VOCAB_COUNT,
+			IsBanned:           false,
 		}
 		user, err := s.userRepo.Create(ctx, &newUser)
 		if err != nil {
 			return err
 		}
+
 		defaultDate := "1900-01-01" // default date
 		parsedTime, err := time.Parse(time.DateOnly, defaultDate)
 		if err != nil {
 			return err
 		}
 		newUserTarget := models.Target{
-			ID:                  user.ID,
-			TargetStudyDuration: 0,
-			TargetReading:       -1,
-			TargetListening:     -1,
-			TargetSpeaking:      -1,
-			TargetWriting:       -1,
-			NextExamDate:        parsedTime,
+			ID:              user.ID,
+			TargetReading:   -1,
+			TargetListening: -1,
+			TargetSpeaking:  -1,
+			TargetWriting:   -1,
+			NextExamDate:    parsedTime,
 		}
 		_, err = s.targetRepo.Create(ctx, &newUserTarget)
 		if err != nil {
 			return err
 		}
+
+		categories := []string{"Topic 1", "Topic 2", "Topic 3", "Topic 4"}
+		for _, category := range categories {
+			newUserVocabCategory := models.UserVocabCategory{
+				Name:   category,
+				UserID: user.ID,
+			}
+			_, err = s.vocabCategoriesRepo.Create(ctx, &newUserVocabCategory)
+			if err != nil {
+				return err
+			}
+		}
+	} else {
+		return common.ErrRoleNotFound
 	}
 
 	return nil
@@ -110,12 +160,15 @@ func (s *Service) LoginUser(ctx context.Context, req models.LoginRequest) (*stri
 		if err != nil {
 			if errors.Is(err, gorm.ErrRecordNotFound) {
 				newUser := models.User{
-					FirstName: &googleUser.GivenName,
-					LastName:  &googleUser.FamilyName,
-					Email:     googleUser.Email,
-					RoleID:    common.ROLE_END_USER_UUID,
-					Provider:  common.USER_PROVIDER_GOOGLE,
-					IsActive:  true,
+					FirstName:          &googleUser.GivenName,
+					LastName:           &googleUser.FamilyName,
+					Email:              googleUser.Email,
+					RoleID:             common.ROLE_END_USER_UUID,
+					Provider:           common.USER_PROVIDER_GOOGLE,
+					EmailNotifications: true,
+					Avatar:             common.DEFAULT_AVATAR,
+					VocabUsageCount:    common.DEFAULT_VOCAB_COUNT,
+					IsBanned:           false,
 				}
 				user, err = s.userRepo.Create(ctx, &newUser)
 				if err != nil {
@@ -127,13 +180,12 @@ func (s *Service) LoginUser(ctx context.Context, req models.LoginRequest) (*stri
 					return nil, err
 				}
 				newUserTarget := models.Target{
-					ID:                  user.ID,
-					TargetStudyDuration: 0,
-					TargetReading:       -1,
-					TargetListening:     -1,
-					TargetSpeaking:      -1,
-					TargetWriting:       -1,
-					NextExamDate:        parsedTime,
+					ID:              user.ID,
+					TargetReading:   -1,
+					TargetListening: -1,
+					TargetSpeaking:  -1,
+					TargetWriting:   -1,
+					NextExamDate:    parsedTime,
 				}
 				_, err = s.targetRepo.Create(ctx, &newUserTarget)
 				if err != nil {
@@ -147,6 +199,10 @@ func (s *Service) LoginUser(ctx context.Context, req models.LoginRequest) (*stri
 		user, err = s.userRepo.GetDetailByConditions(ctx, func(tx *gorm.DB) {
 			tx.Where("email = ?", req.Email)
 		})
+
+		if user.Provider == common.USER_PROVIDER_GOOGLE {
+			return nil, common.ErrGoogleAccount
+		}
 
 		if err != nil {
 			return nil, err
@@ -219,7 +275,7 @@ func (s *Service) GenerateOTP(ctx context.Context, email string, typeToSend stri
 
 	newOTP := models.OTP{
 		Target:     email,
-		Type:       common.RESET_PASSSWORD_TYPE, // common.TypeVerifyEmail if req.Type = "verify_email" ==> Type: common.TypeVerifyEmail else Type: common.TypeResetPassword
+		Type:       typeToSend,
 		OTPCode:    otp,
 		ExpiredAt:  expiry,
 		IsVerified: false,
@@ -256,7 +312,6 @@ func (s *Service) ValidateOTP(ctx context.Context, email, otp string, typeToVali
 
 	newAttempt := models.OTPAttempt{
 		OTPID:     storedOTP.ID,
-		Value:     otp,
 		IsSuccess: false,
 		CreatedAt: currentTime,
 	}
@@ -292,7 +347,7 @@ func (s *Service) ValidateOTP(ctx context.Context, email, otp string, typeToVali
 }
 
 func (s *Service) ResetPassword(ctx context.Context, req models.ResetPasswordRequest) error {
-	_, err := s.userRepo.GetDetailByConditions(ctx, func(tx *gorm.DB) {
+	user, err := s.userRepo.GetDetailByConditions(ctx, func(tx *gorm.DB) {
 		tx.Where("email = ?", req.Email)
 	})
 	if err != nil {
@@ -319,6 +374,16 @@ func (s *Service) ResetPassword(ctx context.Context, req models.ResetPasswordReq
 	isStrongPassword, _ := passwordPattern.MatchString(req.NewPassword)
 	if !isStrongPassword {
 		return common.ErrWeakPassword
+	}
+
+	// Check if the new password is the same as the old one
+	err = bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(req.NewPassword))
+	if err == nil {
+		// If no error, it means the password matches
+		return common.ErrPasswordDuplicated
+	} else if !errors.Is(err, bcrypt.ErrMismatchedHashAndPassword) {
+		// If the error is something other than mismatch, return it
+		return err
 	}
 
 	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(req.NewPassword), bcrypt.DefaultCost)

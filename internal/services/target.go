@@ -48,7 +48,6 @@ func (s *Service) CreateTarget(ctx context.Context, userId string, req models.Ta
 	// Assign default values for other fields if they are nil
 	newTarget := models.Target{
 		ID:                  userId,
-		TargetStudyDuration: getOrDefaultInt(req.TargetStudyDuration, 0),
 		TargetReading:       getOrDefaultFloat32(req.TargetReading, 0.0),
 		TargetListening:     getOrDefaultFloat32(req.TargetListening, 0.0),
 		TargetSpeaking:      getOrDefaultFloat32(req.TargetSpeaking, 0.0),
@@ -87,9 +86,6 @@ func (s *Service) UpdateTarget(ctx context.Context, userId string, req models.Ta
 		return nil, err
 	}
 
-	if req.TargetStudyDuration != nil {
-		updateTarget.TargetStudyDuration = *req.TargetStudyDuration
-	}
 	if req.TargetReading != nil {
 		updateTarget.TargetReading = *req.TargetReading
 	}

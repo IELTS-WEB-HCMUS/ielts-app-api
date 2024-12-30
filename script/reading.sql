@@ -76,3 +76,36 @@ CREATE TABLE quiz_tag_search (
     tag_search_id INTEGER NOT NULL REFERENCES tag_search(id) ON DELETE CASCADE, -- Tag ID
     PRIMARY KEY (quiz_id, tag_search_id)         -- Composite Primary Key
 );
+
+
+--DONE--
+
+ALTER TABLE public.question 
+ADD column description TEXT
+
+
+ALTER TABLE quiz_part
+ADD COLUMN id SERIAL PRIMARY KEY;
+
+ALTER TABLE quiz_part
+DROP CONSTRAINT quiz_part_pkey;
+
+
+-- 1. Thêm cột 'id' làm khóa chính
+ALTER TABLE quiz_tag_search
+ADD COLUMN id SERIAL PRIMARY KEY;
+
+-- 2. Bỏ ràng buộc khóa chính hiện tại trên quiz_id và tag_search_id
+ALTER TABLE quiz_tag_search
+DROP CONSTRAINT quiz_tag_search_pkey;
+
+
+ALTER TABLE tag_position_tag_search
+ADD COLUMN id SERIAL PRIMARY KEY;
+
+-- 2. Bỏ ràng buộc khóa chính hiện tại trên tag_search_id và tag_position_id
+ALTER TABLE tag_position_tag_search
+DROP CONSTRAINT tag_position_tag_search_pkey;
+
+
+ALTER TABLE part RENAME COLUMN quiz_id TO quiz;

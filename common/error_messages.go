@@ -10,6 +10,7 @@ import (
 
 var (
 	ErrUserNotFound                  = errors.New("user not found")
+	ErrRoleNotFound                  = errors.New("role not found")
 	ErrInvalidToken                  = errors.New("invalid token")
 	ErrInvalidInput                  = errors.New("invalid input")
 	ErrInvalidGoogleAuthenToken      = errors.New("invalid Google OAuth token")
@@ -24,7 +25,24 @@ var (
 	ErrFailedToUpdateOTPStatus       = errors.New("failed to update OTP status")
 	ErrEmailNotFound                 = errors.New("email not found")
 	ErrOtpVerityTokenCreateFailed    = errors.New("failed to create OTP verify token")
-	ErrInvalidVerifyToken			 = errors.New("invalid verify token")
+	ErrInvalidVerifyToken            = errors.New("invalid verify token")
+
+	ErrNotAuthorized               = errors.New("not authorized")
+	ErrRecordNotFound              = errors.New("record not found")
+	ErrQuizNotFound                = errors.New("quiz not found")
+	ErrAnswerStatisticTypeRequired = errors.New("answer_statistic_type_required")
+	ErrPasswordDuplicated          = errors.New("password duplicated")
+	ErrDuplicatedEmail             = errors.New("duplicated email")
+
+	ErrIdRequired         = errors.New("id required")
+	ErrIdMustBeInt        = errors.New("id must be an integer")
+	ErrCategoryIdRequired = errors.New("category_id required")
+	ErrCategoryNotFound   = errors.New("category not found")
+	ErrPageNotFound       = errors.New("page not found")
+
+	ErrGoogleAccount               = errors.New("please login with google")
+	ErrVocabUsageCountExceeded	 = errors.New("vocab usage count exceeded")
+	ErrGoogleAccountNoReset 			 = errors.New("google account can't reset password")
 )
 
 var listErrorData = []errData{
