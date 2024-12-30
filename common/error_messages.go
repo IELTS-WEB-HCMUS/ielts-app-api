@@ -40,9 +40,10 @@ var (
 	ErrCategoryNotFound   = errors.New("category not found")
 	ErrPageNotFound       = errors.New("page not found")
 
-	ErrGoogleAccount               = errors.New("please login with google")
-	ErrVocabUsageCountExceeded	 = errors.New("vocab usage count exceeded")
-	ErrGoogleAccountNoReset 			 = errors.New("google account can't reset password")
+	ErrGoogleAccount           = errors.New("please login with google")
+	ErrVocabUsageCountExceeded = errors.New("vocab usage count exceeded")
+	ErrGoogleAccountNoReset    = errors.New("google account can't reset password")
+	ErrUserBanned              = errors.New("user is banned")
 )
 
 var listErrorData = []errData{

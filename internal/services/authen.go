@@ -195,17 +195,24 @@ func (s *Service) LoginUser(ctx context.Context, req models.LoginRequest) (*stri
 				return nil, err
 			}
 		}
+		if user.IsBanned {
+			return nil, common.ErrUserBanned
+		}
 	} else {
 		user, err = s.userRepo.GetDetailByConditions(ctx, func(tx *gorm.DB) {
 			tx.Where("email = ?", req.Email)
 		})
 
-		if user.Provider == common.USER_PROVIDER_GOOGLE {
-			return nil, common.ErrGoogleAccount
-		}
-
 		if err != nil {
 			return nil, err
+		}
+
+		if user.IsBanned {
+			return nil, common.ErrUserBanned
+		}
+
+		if user.Provider == common.USER_PROVIDER_GOOGLE {
+			return nil, common.ErrGoogleAccount
 		}
 
 		if err := bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(*req.Password)); err != nil {
