@@ -40,7 +40,7 @@ type SuccessCounts []*SuccessCount
 
 type AnswerStatisticsQuery struct {
 	BaseRequestParamsUri
-	SkillId         int       `form:"skill_id"`
+	SkillId         int       `form:"skill_id"` // Sort by skill
 	Type            *int      `form:"type"`
 	StartedAt       time.Time `form:"started_at"`
 	EndedAt         time.Time `form:"ended_at"`

@@ -7,7 +7,6 @@ import (
 	"ielts-web-api/internal/models"
 	"ielts-web-api/internal/repositories"
 	"sort"
-	"time"
 
 	"gorm.io/gorm"
 )
@@ -42,7 +41,7 @@ func (s *Service) GetAnswer(ctx context.Context, userID string, answerID int) (*
 
 	// get student info
 	student, err := s.userRepo.GetDetailByConditions(ctx, func(tx *gorm.DB) {
-		tx.Select("id, first_name, last_name, fullname, avatar").Where("id = ?", answer.UserCreated)
+		tx.Select("id, first_name, last_name, avatar").Where("id = ?", answer.UserCreated)
 	})
 	if err != nil {
 		return nil, err
@@ -60,14 +59,6 @@ func (s *Service) GetAnswerStatistic(ctx context.Context, studentID string, requ
 		err                         error
 	)
 
-	if request.StartedAt.IsZero() && request.EndedAt.IsZero() {
-		request.EndedAt = time.Now()
-		request.StartedAt = request.EndedAt.AddDate(0, 0, -365)
-	} else if !request.StartedAt.IsZero() {
-		request.EndedAt = time.Now()
-	} else if !request.EndedAt.IsZero() {
-		request.StartedAt = request.EndedAt.AddDate(0, 0, -365)
-	}
 	if request.Type == nil {
 		return nil, nil
 	}
@@ -97,10 +88,6 @@ func (s *Service) GetAnswerStatistic(ctx context.Context, studentID string, requ
 				tx.Where("type = ?", request.SkillId)
 			})
 		}
-		filters = append(filters, func(tx *gorm.DB) {
-			tx.Where("date_created >= ? and date_created <= ?", request.StartedAt, request.EndedAt)
-		})
-
 		page, pageSize := common.GetPageAndPageSize(request.Page, request.PageSize)
 		total, err := s.answerRepo.Count(ctx, models.QueryParams{}, filters...)
 		if err != nil {
@@ -144,6 +131,11 @@ func (s *Service) GetAnswerStatistic(ctx context.Context, studentID string, requ
 		if err != nil {
 			return nil, err
 		}
+		for _, item := range statisticsByQuiz {
+			if item.QuizDetail != nil {
+				item.QuizTitle = item.QuizDetail.Title
+			}
+		}
 		resData.Items = statisticsByQuiz.Parse()
 		return &resData, nil
 	} else if *request.Type == common.AnswerStatisticByPassage || *request.Type == common.AnswerStatisticQuestionType {
@@ -153,7 +145,7 @@ func (s *Service) GetAnswerStatistic(ctx context.Context, studentID string, requ
 			})
 		}
 		filters = append(filters, func(tx *gorm.DB) {
-			tx.Where("user_id = ? AND create_at >= ? and create_at <= ?", studentID, request.StartedAt.Unix(), request.EndedAt.Unix())
+			tx.Where("user_id = ? ", studentID)
 		})
 		filters = append(filters, func(tx *gorm.DB) {
 			filterSuccessQuizLog(tx)

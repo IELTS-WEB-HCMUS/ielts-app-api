@@ -15,6 +15,7 @@ import (
 )
 
 func (s *Service) GetQuizzes(ctx context.Context, userID string, request *models.ListQuizzesParamsUri) (*models.BaseListResponse, error) {
+	fmt.Println("GetQuizzes 1")
 	var (
 		filters = []repositories.Clause{}
 		quizIDs = []int{}
@@ -28,6 +29,7 @@ func (s *Service) GetQuizzes(ctx context.Context, userID string, request *models
 		PageSize: pageSize,
 		Items:    []*models.Quiz{},
 	}
+	fmt.Println("GetQuizzes 2")
 
 	if request.TagPassage != nil ||
 		request.TagSection != nil ||
@@ -35,12 +37,15 @@ func (s *Service) GetQuizzes(ctx context.Context, userID string, request *models
 
 		tagIDs := []int{}
 		if request.TagSection != nil {
+			fmt.Println("GetQuizzes 3")
 			tagIDs = append(tagIDs, *request.TagSection)
 		}
 		if request.TagPassage != nil {
+			fmt.Println("GetQuizzes 4")
 			tagIDs = append(tagIDs, *request.TagPassage)
 		}
 		if request.TagQuestionType != nil {
+			fmt.Println("GetQuizzes 5")
 			tagIDs = append(tagIDs, *request.TagQuestionType)
 		}
 
@@ -49,6 +54,7 @@ func (s *Service) GetQuizzes(ctx context.Context, userID string, request *models
 		if err != nil {
 			return nil, err
 		}
+		fmt.Println("GetQuizzes 6")
 
 		if len(quizIDs) == 0 {
 			return &resData, nil
@@ -57,24 +63,28 @@ func (s *Service) GetQuizzes(ctx context.Context, userID string, request *models
 		filters = append(filters, func(tx *gorm.DB) {
 			tx.Where("quiz.id IN ?", quizIDs)
 		})
+		fmt.Println("GetQuizzes 7")
 	}
 
 	if request.Mode != nil {
 		filters = append(filters, func(tx *gorm.DB) {
 			tx.Where("quiz.mode = ?", *request.Mode)
 		})
+		fmt.Println("GetQuizzes 8")
 	}
 
 	if request.Type != nil {
 		filters = append(filters, func(tx *gorm.DB) {
 			tx.Where("quiz.type = ?", *request.Type)
 		})
+		fmt.Println("GetQuizzes 9")
 	}
 
 	if request.Status != nil && len(*request.Status) > 0 {
 		filters = append(filters, func(tx *gorm.DB) {
 			tx.Where("quiz.status = ?", *request.Status)
 		})
+		fmt.Println("GetQuizzes 10")
 	}
 
 	if request.Search != nil && len(*request.Search) > 0 {
@@ -89,6 +99,14 @@ func (s *Service) GetQuizzes(ctx context.Context, userID string, request *models
 				tx.Where("quiz.title ILIKE ?", "%"+*request.Search+"%")
 			})
 		}
+		fmt.Println("GetQuizzes 11")
+	}
+
+	if request.Level != nil {
+		filters = append(filters, func(tx *gorm.DB) {
+			tx.Where("quiz.level = ?", *request.Level)
+		})
+		fmt.Println("GetQuizzes 12")
 	}
 
 	// Handle information with log-in student
@@ -98,10 +116,13 @@ func (s *Service) GetQuizzes(ctx context.Context, userID string, request *models
 	)
 
 	if len(userID) > 0 {
+		fmt.Println("GetQuizzes 13")
 		filterQuizIDsSubmitted := func(tx *gorm.DB) {
 			if len(quizIDs) > 0 {
+				fmt.Println("GetQuizzes 14")
 				tx.Select("distinct quiz").Where("user_created = ? and quiz IN ?", userID, quizIDs)
 			} else {
+				fmt.Println("GetQuizzes 15")
 				tx.Select("distinct quiz").Where("user_created = ?", userID)
 			}
 		}
@@ -110,6 +131,7 @@ func (s *Service) GetQuizzes(ctx context.Context, userID string, request *models
 		if err != nil {
 			return nil, err
 		}
+		fmt.Println("GetQuizzes 16")
 
 		for _, answer := range answers {
 			quizSubmittedMap[answer.Quiz] = true
@@ -117,11 +139,13 @@ func (s *Service) GetQuizzes(ctx context.Context, userID string, request *models
 		}
 
 		if request.SubmittedStatus == common.QuizSubmittedStatusYes {
+			fmt.Println("SubmittedStatus: ", request.SubmittedStatus)
 			filters = append(filters, func(tx *gorm.DB) {
 				tx.Where("quiz.id IN ?", quizSubmittedIDs)
 			})
 		} else if request.SubmittedStatus == common.QuizSubmittedStatusNo {
 			if len(quizSubmittedIDs) > 0 {
+				fmt.Println("SubmittedStatus: ", request.SubmittedStatus)
 				filters = append(filters, func(tx *gorm.DB) {
 					tx.Where("quiz.id NOT IN ?", quizSubmittedIDs)
 				})

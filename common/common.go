@@ -56,8 +56,8 @@ const (
 
 const (
 	AnswerStatisticByQuiz       = 1
-	AnswerStatisticQuestionType = 2
-	AnswerStatisticByPassage    = 3
+	AnswerStatisticQuestionType = 3
+	AnswerStatisticByPassage    = 2
 
 	QuizSubmittedStatusUnknown = 0
 	QuizSubmittedStatusYes     = 1

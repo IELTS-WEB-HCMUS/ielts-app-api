@@ -44,6 +44,7 @@ type ListQuizzesParamsUri struct {
 	Search          *string `form:"search"`
 	Mode            *int    `form:"mode" validate:"omitempty,min=0"`
 	SubmittedStatus int     `form:"submitted_status"`
+	Level           *int    `form:"level" validate:"omitempty,min=1"`
 }
 
 type QuizSkill struct {
