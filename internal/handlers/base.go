@@ -39,4 +39,47 @@ func (h *Handler) RegisterRoutes(c *gin.Engine) {
 	{
 		health.GET("/status", h.CheckStatusHealth)
 	}
+
+	quizzes := c.Group("/v1/quizzes")
+	{
+		//API Get Quiz Detail
+		quizzes.GET("/:quiz_id", middleware.UserAuthentication, h.GetQuiz())
+		//API Listing Quiz
+		quizzes.GET("", middleware.OptionalUserAuthentication(), h.GetQuizzes())
+
+		quizzes.POST("/:quiz_id/answer", middleware.UserAuthentication, h.SubmitQuiz())
+
+	}
+
+	tagSearches := c.Group("/v1/tag-searches")
+	{
+		//API Get Tag Search
+		tagSearches.GET("", h.GetTagSearches())
+	}
+
+	answerRoutes := c.Group("/v1/answers")
+	{
+		answerRoutes.GET("/:answer_id", middleware.UserAuthentication, h.GetAnswer)
+		answerRoutes.GET("/statistics", middleware.UserAuthentication, h.GetAnswerStatistic)
+	}
+
+	vocabRoutes := c.Group("/api/vocabs")
+	{
+		vocabRoutes.GET("/get-categories", middleware.UserAuthentication, h.GetVocabCategorires)
+		vocabRoutes.POST("/update-category", middleware.UserAuthentication, h.UpdateVocabCategory)
+		vocabRoutes.POST("/add", middleware.UserAuthentication, h.AddVocab)
+		vocabRoutes.POST("/update", middleware.UserAuthentication, h.UpdateVocab)
+		vocabRoutes.DELETE("/:id", middleware.UserAuthentication, h.DeleteVocab)
+		vocabRoutes.POST("/", middleware.UserAuthentication, h.GetVocabs)
+	}
+
+	aiRoutes := c.Group("/api/ai")
+	{
+		aiRoutes.POST("/look-up-vocab", middleware.UserAuthentication, h.LookUpVocab)
+	}
+
+	voteRoutes := c.Group("/v1/vote")
+	{
+		voteRoutes.POST("", middleware.UserAuthentication, h.Vote)
+	}
 }
