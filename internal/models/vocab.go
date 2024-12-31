@@ -53,6 +53,7 @@ type UserVocabBankUpdateRequest struct {
 	Example  *string `json:"example"`
 	Note     *string `json:"note"`
 	Status   *string `json:"status"`
+	Meaning  *string `json:"meaning"`
 	Category *int    `json:"category"`
 }
 

@@ -87,6 +87,9 @@ func (s *Service) UpdateVocab(ctx context.Context, req models.UserVocabBankUpdat
 	if req.Category != nil {
 		vocab.Category = *req.Category
 	}
+	if req.Meaning != nil {
+		vocab.Meaning = *req.Meaning
+	}
 
 	// Save updated vocab
 	_, err = s.userVocabBankRepo.Update(ctx, vocab.ID, vocab)
