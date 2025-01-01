@@ -17,7 +17,7 @@ type Question struct {
 	Type              string         `json:"type" gorm:"type"`
 	SingleChoiceRadio datatypes.JSON `json:"single_choice_radio" gorm:"single_choice_radio"`
 	Selection         datatypes.JSON `json:"selection" gorm:"selection"`
-	MultipleChoice    datatypes.JSON `json:"mutilple_choice" gorm:"column:mutilple_choice"`
+	MultipleChoice    datatypes.JSON `json:"multiple_choice" gorm:"column:multiple_choice"`
 	GapFillInBlank    datatypes.JSON `json:"gap_fill_in_blank" gorm:"gap_fill_in_blank"`
 	SelectionOption   datatypes.JSON `json:"selection_option" gorm:"selection_option"`
 	Order             *int           `json:"order" gorm:"order"`
