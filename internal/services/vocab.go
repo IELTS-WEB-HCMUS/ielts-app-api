@@ -13,15 +13,15 @@ import (
 
 func (s *Service) GetVocabCategoriresByUserId(ctx context.Context, userId string) ([]*models.UserVocabCategory, error) {
 	params := models.QueryParams{
-		Offset:    0,
-		Limit:     4,
-		QuerySort: models.QuerySort{},
-		Selected:  []string{"id", "name"},
-		Preload:   nil,
+		Offset:   0,
+		Limit:    4,
+		Selected: []string{"id", "name"},
+		Preload:  nil,
 	}
 
 	userClause := repositories.Clause(func(tx *gorm.DB) {
 		tx.Where("user_id = ?", userId)
+		tx.Order("id ASC")
 	})
 
 	categories, err := s.vocabCategoriesRepo.List(ctx, params, userClause)
