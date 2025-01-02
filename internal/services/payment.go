@@ -2,6 +2,7 @@ package services
 
 import (
 	"context"
+	"ielts-web-api/internal/models"
 	"os"
 
 	"errors"
@@ -131,6 +132,15 @@ func (s *Service) UpdateVocabCount(ctx context.Context, userId string) error {
 	return nil
 }
 
+func (s *Service) LogPaymentHistory(ctx context.Context, paymentLog models.Payment) error {
+	_, err := s.paymentRepo.Create(ctx, &paymentLog)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
 // Polling function with a maximum duration of 5 minutes (no max attempts)
 func (s *Service) pollOrderStatusForBuyingAiVocabTurn(appTransId string, userID string) {
 	interval := 10 * time.Second   // Check every 10 seconds
@@ -151,9 +161,23 @@ func (s *Service) pollOrderStatusForBuyingAiVocabTurn(appTransId string, userID 
 
 		if *status == 1 {
 			_ = s.UpdateVocabCount(context.Background(), userID)
+			_ = s.LogPaymentHistory(context.Background(), models.Payment{
+				Amount:           20000,
+				Status:          "SUCCESS",
+				Type:            "AI_VOCAB_TURN",
+				UserId:          userID,
+				TransactionTime: time.Now(),
+			})
 			fmt.Printf("Payment SUCCESS for OrderID: %s, UserID: %s. Updating vocab_count...\n", appTransId, userID)
 			return
 		} else if *status == 2 {
+			_ = s.LogPaymentHistory(context.Background(), models.Payment{
+				Amount:           20000,
+				Status:          "FAILED",
+				Type:            "AI_VOCAB_TURN",
+				UserId:          userID,
+				TransactionTime: time.Now(),
+			})
 			fmt.Printf("Payment FAILED for OrderID: %s. Stopping polling.\n", appTransId)
 			return
 		}

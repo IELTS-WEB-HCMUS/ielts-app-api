@@ -20,7 +20,8 @@ type Service struct {
 	vocabCategoriesRepo *repositories.UserVocabCategoryRepository
 	userVocabBankRepo   *repositories.UserVocabBankRepository
 
-	vocabRepo *repositories.VocabRepository
+	vocabRepo   *repositories.VocabRepository
+	paymentRepo *repositories.PaymentRepository
 }
 
 func NewService(repos ...interface{}) *Service {
@@ -53,6 +54,8 @@ func NewService(repos ...interface{}) *Service {
 			service.userVocabBankRepo = repo.(*repositories.UserVocabBankRepository)
 		case *repositories.VocabRepository:
 			service.vocabRepo = repo.(*repositories.VocabRepository)
+		case *repositories.PaymentRepository:
+			service.paymentRepo = repo.(*repositories.PaymentRepository)
 		default:
 			panic("Unknown repository type provided")
 		}

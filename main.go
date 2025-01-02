@@ -49,6 +49,7 @@ func main() {
 	tagSearchPositionRepo := repositories.NewTagSearchPositionRepo(db)
 	answerRepo := repositories.NewAnswerRepository(db)
 	successQuizLogRepo := repositories.NewSuccessQuizLogRepository(db)
+	paymentRepo := repositories.NewPaymentRepository(db)
 
 	service := services.NewService(
 		userRepo,
@@ -64,6 +65,7 @@ func main() {
 		tagSearchPositionRepo,
 		answerRepo,
 		successQuizLogRepo,
+		paymentRepo,
 	)
 
 	// Initialize the Gin router and register routes. Do not edit this part
