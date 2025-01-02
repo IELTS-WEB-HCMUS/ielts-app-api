@@ -59,6 +59,23 @@ func (s *Service) AddVocab(ctx context.Context, req models.UserVocabBankAddReque
 		Category:  req.Category,
 	}
 
+	if req.Meaning == "" || req.Example == nil || req.IPA == "" {
+		geminiVocab, err := genVocabInfoWithGemini(req.Value, req.WordClass)
+
+		if err != nil {
+			return nil, err
+		}
+		if req.Meaning == "" {
+			newVocab.Meaning = geminiVocab.Meaning
+		}
+		if req.Example == nil {
+			newVocab.Example = &geminiVocab.Example
+		}
+		if req.IPA == "" {
+			newVocab.IPA = geminiVocab.IPA
+		}
+	}
+
 	_, err := s.userVocabBankRepo.Create(ctx, &newVocab)
 	if err != nil {
 		return nil, err
