@@ -31,3 +31,37 @@ type LookUpVocabRequest struct {
 	WordIndex     int    `json:"vocab_index" binding:"required"`
 	Word          string `json:"word" binding:"required"`
 }
+
+// Define your models
+type GPart struct {
+        Text string `json:"text"`
+}
+
+type GContent struct {
+        Parts []GPart `json:"parts"`
+}
+
+type GGenerationConfig struct {
+        ResponseMimeType string `json:"responseMimeType,omitempty"`
+}
+
+type GeminiRequest struct {
+        Contents         []GContent        `json:"contents"`
+        GenerationConfig GGenerationConfig `json:"generationConfig,omitempty"`
+}
+
+type GVocabularyResponse struct {
+        Vocabulary string `json:"vocabulary"`
+        WordClass  string `json:"word_class"`
+        Meaning    string `json:"meaning"`
+        Example    string `json:"example"`
+        IPA        string `json:"ipa"`
+}
+
+type GeminiResponse struct {
+        Candidates []struct {
+                Content struct {
+                        Parts []GPart `json:"parts"`
+                } `json:"content"`
+        } `json:"candidates"`
+}
