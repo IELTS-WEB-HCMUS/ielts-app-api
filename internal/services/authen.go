@@ -115,10 +115,10 @@ func (s *Service) SignupUser(ctx context.Context, req models.SignupRequest) erro
 		}
 		newUserTarget := models.Target{
 			ID:              user.ID,
-			TargetReading:   -1,
-			TargetListening: -1,
-			TargetSpeaking:  -1,
-			TargetWriting:   -1,
+			TargetReading:   0,
+			TargetListening: 0,
+			TargetSpeaking:  0,
+			TargetWriting:   0,
 			NextExamDate:    parsedTime,
 		}
 		_, err = s.targetRepo.Create(ctx, &newUserTarget)
@@ -181,10 +181,10 @@ func (s *Service) LoginUser(ctx context.Context, req models.LoginRequest) (*stri
 				}
 				newUserTarget := models.Target{
 					ID:              user.ID,
-					TargetReading:   -1,
-					TargetListening: -1,
-					TargetSpeaking:  -1,
-					TargetWriting:   -1,
+					TargetReading:   0,
+					TargetListening: 0,
+					TargetSpeaking:  0,
+					TargetWriting:   0,
 					NextExamDate:    parsedTime,
 				}
 				_, err = s.targetRepo.Create(ctx, &newUserTarget)
