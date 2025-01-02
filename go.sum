@@ -87,6 +87,10 @@ github.com/twitchyliquid64/golang-asm v0.15.1 h1:SU5vSMR7hnwNxj24w34ZyCi/FmDZTkS
 github.com/twitchyliquid64/golang-asm v0.15.1/go.mod h1:a1lVb/DtPvCB8fslRZhAngC2+aY1QWCk3Cedj/Gdt08=
 github.com/ugorji/go/codec v1.2.12 h1:9LC83zGrHhuUA9l16C9AHXAqEV/2wBQ4nkvumAE65EE=
 github.com/ugorji/go/codec v1.2.12/go.mod h1:UNopzCgEMSXjBc6AOMqYvWC1ktqTAfzJZUZgYf6w6lg=
+github.com/zpmep/hmacutil v0.0.0-20190619043418-253bc927934c h1:TZTYe1Zalvbwkoleu8FVhDSHekxh0/UKpI7R4betVPw=
+github.com/zpmep/hmacutil v0.0.0-20190619043418-253bc927934c/go.mod h1:rPi1RGvYoxhq3Qah8HKnI7p6IrXqPYKY32/Wayz48YI=
+github.com/zpmep/rsautil v0.0.0-20190619043325-644bcbee084e h1:g5n5ZZUtrZfly8YiUzu32Ef4NX5ON+UCqG/ksD9cW1U=
+github.com/zpmep/rsautil v0.0.0-20190619043325-644bcbee084e/go.mod h1:sJS8YR/aTJXn+ncN/8lrSfd2my+lN0PDXRkMZRh44Ws=
 golang.org/x/arch v0.0.0-20210923205945-b76863e36670/go.mod h1:5om86z9Hs0C8fWVUuoMHwpExlXzs5Tkyp9hOrfG7pp8=
 golang.org/x/arch v0.8.0 h1:3wRIsP3pM4yUptoR96otTUOXI367OS0+c9eeRi9doIc=
 golang.org/x/arch v0.8.0/go.mod h1:FEVrYAQjsQXMVJ1nsMoVVXPZg6p2JE2mx8psSWTDQys=
