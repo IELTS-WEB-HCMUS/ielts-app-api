@@ -32,6 +32,8 @@ require (
 	github.com/sendgrid/rest v2.6.9+incompatible // indirect
 	github.com/twitchyliquid64/golang-asm v0.15.1 // indirect
 	github.com/ugorji/go/codec v1.2.12 // indirect
+	github.com/zpmep/hmacutil v0.0.0-20190619043418-253bc927934c // indirect
+	github.com/zpmep/rsautil v0.0.0-20190619043325-644bcbee084e // indirect
 	golang.org/x/arch v0.8.0 // indirect
 	golang.org/x/crypto v0.23.0 // indirect
 	golang.org/x/net v0.25.0 // indirect

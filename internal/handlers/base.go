@@ -82,4 +82,9 @@ func (h *Handler) RegisterRoutes(c *gin.Engine) {
 	{
 		voteRoutes.POST("", middleware.UserAuthentication, h.Vote)
 	}
+
+	paymentRoutes := c.Group("/v1/payments")
+	{
+		paymentRoutes.GET("/ai-vocab-turn", middleware.UserAuthentication, h.BuyMoreAiVocabTurn)
+	}
 }
