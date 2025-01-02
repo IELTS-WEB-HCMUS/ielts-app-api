@@ -41,8 +41,8 @@ func (UserVocabBank) TableName() string {
 type UserVocabBankAddRequest struct {
 	Value     string  `json:"value" binding:"required"`
 	WordClass string  `json:"word_class" binding:"required"`
-	Meaning   string  `json:"meaning" binding:"required"`
-	IPA       string  `json:"ipa" binding:"required"`
+	Meaning   string  `json:"meaning"`
+	IPA       string  `json:"ipa"`
 	Example   *string `json:"example"`
 	Note      *string `json:"note"`
 	Category  int     `json:"category" binding:"required"`
