@@ -121,7 +121,7 @@ func (s *Service) UpdateVocabCount(ctx context.Context, userId string) error {
 		return err
 	}
 
-	user.VocabUsageCount += 10
+	user.VocabUsageCount += 20
 	_, err = s.userRepo.UpdateColumns(ctx, user.ID, map[string]interface{}{
 		"vocab_usage_count": user.VocabUsageCount,
 	})
@@ -162,7 +162,7 @@ func (s *Service) pollOrderStatusForBuyingAiVocabTurn(appTransId string, userID 
 		if *status == 1 {
 			_ = s.UpdateVocabCount(context.Background(), userID)
 			_ = s.LogPaymentHistory(context.Background(), models.Payment{
-				Amount:           20000,
+				Amount:          20000,
 				Status:          "SUCCESS",
 				Type:            "AI_VOCAB_TURN",
 				UserId:          userID,
@@ -172,7 +172,7 @@ func (s *Service) pollOrderStatusForBuyingAiVocabTurn(appTransId string, userID 
 			return
 		} else if *status == 2 {
 			_ = s.LogPaymentHistory(context.Background(), models.Payment{
-				Amount:           20000,
+				Amount:          20000,
 				Status:          "FAILED",
 				Type:            "AI_VOCAB_TURN",
 				UserId:          userID,
